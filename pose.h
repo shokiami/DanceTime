@@ -1,22 +1,38 @@
+#ifndef POSE_H
+#define POSE_H
+
 #include "defs.h"
 
-typedef cv::Point_<double> Point;
-
 class PoseEstimator {
-    public:
-    PoseEstimator();
-    Pose estimate(cv::Mat& frame);
-
-    private:
-    static const int net_width = 368;
-    static const int net_height = 368;
-    cv::dnn::Net net;
-    static constexpr double min_confidence = 0.1;
-    std::vector<string> body_parts = { "Nose", "Neck", "RShoulder", "RElbow", "RWrist", "LShoulder", "LElbow", "LWrist", 
-                                       "RHip", "RKnee", "RAnkle", "LHip", "LKnee", "LAnkle", "REye", "LEye", "REar", "LEar", "Background" };
+  public:
+  PoseEstimator();
+  ~PoseEstimator();
+  Pose estimate(cv::Mat& frame);
+  private:
+  std::vector<std::string> body_parts = 
+    { "nose", "right eye (inner)", "right eye", "right eye (outer)", "left eye (inner)", "left eye", "left eye (outer)", 
+      "right ear", "left ear", "mouth (right)", "mouth (left)", "right shoulder", "left shoulder", "right elbow", "left elbow", 
+      "right wrist", "left wrist", "right pinky", "left pinky", "right index", "left index", "right thumb", "left thumb", 
+      "right hip", "left hip", "right knee", "left knee", "right ankle", "left ankle", "right heel", "left heel", "right foot index", "left foot index" };
 };
 
 class Pose {
-    public:
-    std::map<string, Point> body_parts;
+  public:
+  Landmark get(std::string body_part);
+  void add(Landmark landmark);
+
+  private:
+  std::map<std::string, Landmark> landmarks;
 };
+
+class Landmark {
+  public:
+  cv::Point framePosition(cv::Mat frame);
+  friend std::ostream& operator << (std::ostream& out, Landmark& obj);
+  std::string body_part;
+  cv::Point3d position;
+  double visibility;
+  double presence;
+};
+
+#endif

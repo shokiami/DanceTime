@@ -1,8 +1,7 @@
 #include "camera.h"
 
 int main() {
-    Camera camera;
-    camera.main();
-    cout << "hi" << endl;
-    return 0;
+  Camera camera;
+  camera.main();
+  return 0;
 }

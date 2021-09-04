@@ -1,12 +1,27 @@
-
+CXX := g++
 FLAGS := `pkg-config --cflags opencv4` -std=c++17
-LIBS := `pkg-config --libs opencv4`
+LIBS := `pkg-config --libs opencv4` -Wl,-rpath,./ libmediapipe.so
+ifeq ($(BUILD),RELEASE)
+OPT := -O3
+else
+OPT := -g
+endif
 
-main : main.cc camera.o pose.o
-	g++ main.cc camera.o pose.o -o main $(FLAGS) $(LIBS)
+SOURCES := $(wildcard *.cc)
+HEADERS := $(wildcard *.h)
+OBJECTS := $(patsubst %,obj/%, $(patsubst %.cc,%.o, $(SOURCES)))
 
-camera.o : camera.cc camera.h defs.h
-	g++ -c camera.cc -o camera.o $(FLAGS)
+main: $(OBJECTS) libmediapipe.so
+	$(CXX) $(FLAGS) $(OPT) $(OBJECTS) -o main $(LDFLAGS) $(LIBS)
 
-pose.o : pose.cc pose.h defs.h
-	g++ -c pose.cc -o pose.o $(FLAGS)
+$(OBJECTS): obj/%.o : %.cc $(HEADERS)
+	$(CXX) $(FLAGS) $(OPT) -c $< -o $@
+
+.PHONY: clean setup
+
+setup:
+	mkdir obj
+
+clean:
+	rm -rf obj/*
+	rm -f $(TARGET)
