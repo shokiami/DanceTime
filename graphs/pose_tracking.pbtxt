@@ -23,7 +23,4 @@ node {
   calculator: "PoseLandmarkCpu"
   input_stream: "IMAGE:throttled_input_video"
   output_stream: "LANDMARKS:pose_landmarks"
-  output_stream: "SEGMENTATION_MASK:segmentation_mask"
-  output_stream: "DETECTION:pose_detection"
-  output_stream: "ROI_FROM_LANDMARKS:roi_from_landmarks"
 }
