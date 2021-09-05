@@ -8,10 +8,10 @@ void Pose::add(Landmark landmark) {
   landmarks[landmark.body_part] = landmark;
 }
 
-cv::Point Landmark::framePosition(cv::Mat frame) {
+cv::Point2d Landmark::framePosition(cv::Mat frame) {
   int frame_width = frame.size[1];
   int frame_height = frame.size[0];
-  return cv::Point(position.x * frame_width, position.y * frame_height);
+  return cv::Point2d(position.x * frame_width, position.y * frame_height);
 }
 
 std::ostream& operator << (std::ostream& out, Landmark& obj) {

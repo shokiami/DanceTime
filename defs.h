@@ -11,7 +11,6 @@
 #include <iostream>
 #include <string>
 
-class Camera;
 class PoseEstimator;
 class Pose;
 class Landmark;

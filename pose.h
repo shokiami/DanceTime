@@ -8,6 +8,7 @@ class PoseEstimator {
   PoseEstimator();
   ~PoseEstimator();
   Pose estimate(cv::Mat& frame);
+
   private:
   std::vector<std::string> body_parts = 
     { "nose", "right eye (inner)", "right eye", "right eye (outer)", "left eye (inner)", "left eye", "left eye (outer)", 
@@ -20,14 +21,12 @@ class Pose {
   public:
   Landmark get(std::string body_part);
   void add(Landmark landmark);
-
-  private:
   std::map<std::string, Landmark> landmarks;
 };
 
 class Landmark {
   public:
-  cv::Point framePosition(cv::Mat frame);
+  cv::Point2d framePosition(cv::Mat frame);
   friend std::ostream& operator << (std::ostream& out, Landmark& obj);
   std::string body_part;
   cv::Point3d position;
