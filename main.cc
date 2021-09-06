@@ -40,6 +40,7 @@ int main() {
     frame_lock.lock();
     videoCapture.read(frame);
     cv::flip(frame, frame, 1);
+    cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
     frame_lock.unlock();
     if (!pose.landmarks.empty()) {
       pose_lock.lock();
@@ -47,6 +48,7 @@ int main() {
       pose_lock.unlock();
     }
     frame_lock.lock();
+    cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
     imshow("DanceTime", frame);
     frame_lock.unlock();
   }
