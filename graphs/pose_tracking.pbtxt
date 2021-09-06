@@ -5,6 +5,7 @@ input_stream: "input_video"
 
 # Pose landmarks. (NormalizedLandmarkList)
 output_stream: "pose_landmarks"
+output_stream: "landmark_presence"
 
 # Limits the images flowing downstream to prevent back-ups.
 node {
@@ -23,4 +24,11 @@ node {
   calculator: "PoseLandmarkCpu"
   input_stream: "IMAGE:throttled_input_video"
   output_stream: "LANDMARKS:pose_landmarks"
+}
+
+# Subgraph that checks for landmark presence.
+node {
+  calculator: "PacketPresenceCalculator"
+  input_stream: "PACKET:pose_landmarks"
+  output_stream: "PRESENCE:landmark_presence"
 }

@@ -17,7 +17,9 @@ class PoseThread {
       frame_lock.unlock();
       Pose tmp_pose = pose_estimator.estimate(tmp_frame);
       pose_lock.lock();
-      pose = tmp_pose;
+      if (!tmp_pose.landmarks.empty()) {
+        pose = tmp_pose;
+      }
       pose_lock.unlock();
     }
   }
