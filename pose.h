@@ -20,13 +20,16 @@ class PoseEstimator {
 class Pose {
   public:
   Landmark get(std::string body_part);
-  void add(Landmark landmark);
+  void add(Landmark& landmark);
   std::map<std::string, Landmark> landmarks;
 };
 
 class Landmark {
   public:
-  cv::Point2d framePosition(cv::Mat frame);
+  static constexpr double min_visibility = 0.5;
+  static constexpr double min_presence = 0.5;
+  bool isVisible();
+  cv::Point2d framePosition(cv::Mat& frame);
   friend std::ostream& operator << (std::ostream& out, Landmark& obj);
   std::string body_part;
   cv::Point3d position;

@@ -5,6 +5,8 @@ input_stream: "input_video"
 
 # Pose landmarks. (NormalizedLandmarkList)
 output_stream: "pose_landmarks"
+
+# Landmark presence. (bool)
 output_stream: "landmark_presence"
 
 # Limits the images flowing downstream to prevent back-ups.

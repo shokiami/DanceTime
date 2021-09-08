@@ -5,10 +5,9 @@
 
 class Canvas {
   public:
-  void renderPose(cv::Mat& frame, Pose pose);
+  void renderPose(cv::Mat& frame, Pose& pose);
 
   private:
-  static constexpr double min_presence = 0.1;
   std::vector<std::pair<std::string, std::string>> pose_lines = 
     { // Face.
       {"left eye (outer)", "left eye"}, {"left eye", "left eye (inner)"}, {"left eye (inner)", "nose"},

@@ -4,11 +4,15 @@ Landmark Pose::get(std::string body_part) {
   return landmarks.at(body_part);
 }
 
-void Pose::add(Landmark landmark) {
+void Pose::add(Landmark& landmark) {
   landmarks[landmark.body_part] = landmark;
 }
 
-cv::Point2d Landmark::framePosition(cv::Mat frame) {
+bool Landmark::isVisible() {
+  return visibility > min_visibility && presence > min_presence;
+}
+
+cv::Point2d Landmark::framePosition(cv::Mat& frame) {
   int frame_width = frame.size[1];
   int frame_height = frame.size[0];
   return cv::Point2d(position.x * frame_width, position.y * frame_height);
