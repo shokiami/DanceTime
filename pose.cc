@@ -1,11 +1,11 @@
 #include "pose.h"
 
 void Pose::addLandmark(Landmark landmark) {
-  landmarks.emplace(landmark.getBodyPart(), landmark);
+  landmarks.push_back(landmark);
 }
 
 Landmark Pose::getLandmark(std::string body_part) {
-  return landmarks.at(body_part);
+  return *std::find_if(landmarks.begin(), landmarks.end(), [body_part](Landmark landmark) { return landmark.getBodyPart() == body_part; });
 }
 
 bool Pose::isEmpty() {

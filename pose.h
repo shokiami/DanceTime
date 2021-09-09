@@ -24,7 +24,7 @@ class Pose {
   bool isEmpty();
 
   private:
-  std::map<std::string, Landmark> landmarks;
+  std::vector<Landmark> landmarks;
 };
 
 class Landmark {
