@@ -42,8 +42,8 @@ class Landmark {
   cv::Point3d position;
   double visibility;
   double presence;
-  static constexpr double min_visibility = 0.5;
-  static constexpr double min_presence = 0.5;
+  static constexpr double min_visibility = 0.4;
+  static constexpr double min_presence = 0.1;
 };
 
 #endif
