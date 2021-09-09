@@ -16,9 +16,7 @@ int main() {
       if (!result.isEmpty()) {
         pose = result;
       }
-      if (!pose.isEmpty()) {
-        canvas.renderPose(frame, pose);
-      }
+      canvas.renderPose(frame, pose);
       cv::imshow("DanceTime", frame);
     }
   }
