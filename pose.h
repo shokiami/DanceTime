@@ -19,22 +19,31 @@ class PoseEstimator {
 
 class Pose {
   public:
-  Landmark get(std::string body_part);
-  void add(Landmark& landmark);
+  void addLandmark(Landmark landmark);
+  Landmark getLandmark(std::string body_part);
+  bool isEmpty();
+
+  private:
   std::map<std::string, Landmark> landmarks;
 };
 
 class Landmark {
   public:
-  static constexpr double min_visibility = 0.5;
-  static constexpr double min_presence = 0.5;
+  Landmark(std::string body_part, cv::Point3d position, double visibility, double presence);
   bool isVisible();
   cv::Point2d framePosition(cv::Mat& frame);
-  friend std::ostream& operator << (std::ostream& out, Landmark& obj);
+  std::string getBodyPart();
+  cv::Point3d getPosition();
+  double getVisibility();
+  double getPresence();
+
+  private:
   std::string body_part;
   cv::Point3d position;
   double visibility;
   double presence;
+  static constexpr double min_visibility = 0.5;
+  static constexpr double min_presence = 0.5;
 };
 
 #endif

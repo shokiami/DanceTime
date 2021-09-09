@@ -1,27 +1,42 @@
 #include "pose.h"
 
-Landmark Pose::get(std::string body_part) {
+void Pose::addLandmark(Landmark landmark) {
+  landmarks.emplace(landmark.getBodyPart(), landmark);
+}
+
+Landmark Pose::getLandmark(std::string body_part) {
   return landmarks.at(body_part);
 }
 
-void Pose::add(Landmark& landmark) {
-  landmarks[landmark.body_part] = landmark;
+bool Pose::isEmpty() {
+  return landmarks.empty();
 }
+
+Landmark::Landmark(std::string body_part, cv::Point3d position, double visibility, double presence) :
+  body_part(body_part), position(position), visibility(visibility), presence(presence) {}
 
 bool Landmark::isVisible() {
   return visibility > min_visibility && presence > min_presence;
 }
 
 cv::Point2d Landmark::framePosition(cv::Mat& frame) {
-  int frame_width = frame.size[1];
-  int frame_height = frame.size[0];
+  const size_t frame_width = frame.size[1];
+  const size_t frame_height = frame.size[0];
   return cv::Point2d(position.x * frame_width, position.y * frame_height);
 }
 
-std::ostream& operator << (std::ostream& out, Landmark& obj) {
-  out << "body_part: " << obj.body_part << ", ";
-  out << "position: {" << obj.position.x << ", " << obj.position.y << ", " << obj.position.z << "}, ";
-  out << "visibility: " << obj.visibility << ", ";
-  out << "presence: " << obj.presence;
-  return out;
+std::string Landmark::getBodyPart() {
+  return body_part;
+}
+
+cv::Point3d Landmark::getPosition() {
+  return position;
+}
+
+double Landmark::getVisibility() {
+  return visibility;
+}
+
+double Landmark::getPresence() {
+  return presence;
 }

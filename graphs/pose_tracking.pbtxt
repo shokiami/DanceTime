@@ -1,12 +1,12 @@
 # MediaPipe graph that performs pose tracking with TensorFlow Lite on CPU.
 
-# CPU buffer. (ImageFrame)
+# CPU buffer (ImageFrame).
 input_stream: "input_video"
 
-# Pose landmarks. (NormalizedLandmarkList)
+# Pose landmarks (NormalizedLandmarkList).
 output_stream: "pose_landmarks"
 
-# Landmark presence. (bool)
+# Landmark presence (bool).
 output_stream: "landmark_presence"
 
 # Limits the images flowing downstream to prevent back-ups.
