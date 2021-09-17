@@ -10,7 +10,7 @@ int main() {
     capture.read(frame);
     if (!frame.empty()) {
       cv::flip(frame, frame, 1);
-      Pose pose = pose_estimator.estimate(frame);
+      Pose pose = pose_estimator.getPose(frame);
       canvas.renderPose(frame, pose);
       cv::imshow("DanceTime", frame);
     }

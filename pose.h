@@ -7,7 +7,7 @@ class PoseEstimator {
   public:
   PoseEstimator();
   ~PoseEstimator();
-  Pose estimate(cv::Mat& frame);
+  Pose getPose(cv::Mat& frame, bool async = false);
 
   private:
   std::vector<std::string> body_parts = 
