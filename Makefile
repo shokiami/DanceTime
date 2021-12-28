@@ -8,6 +8,7 @@ OPT := -g
 endif
 
 SOURCES := $(wildcard *.cc)
+SOURCES := $(filter-out libmediapipe.cc, $(SOURCES))
 HEADERS := $(wildcard *.h)
 OBJECTS := $(patsubst %,obj/%, $(patsubst %.cc,%.o, $(SOURCES)))
 
