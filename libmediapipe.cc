@@ -83,13 +83,23 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
   size_t frame_timestamp_us = (double)cv::getTickCount() / (double)cv::getTickFrequency() * 1e6;
   graph->AddPacketToInputStream(kInputStream, 
     mediapipe::Adopt(input_frame.release()).At(mediapipe::Timestamp(frame_timestamp_us)));
+  // If 'wait', then wait until the graph returns a new landmark packet or 100 milliseconds pass by.
+  if (wait) {
+    size_t start_time = (double)cv::getTickCount() / (double)cv::getTickFrequency() * 1e3;
+    size_t current_time = start_time;
+    while (landmark_poller->QueueSize() == 0 && current_time - start_time < 100) {
+      // Wait.
+      current_time = (double)cv::getTickCount() / (double)cv::getTickFrequency() * 1e3;
+    }
+  }
   // If there is a new landmark packet, then update pose.
-  // Or if 'wait', then wait until the graph returns a new landmark packet.
-  if (landmark_poller->QueueSize() > 0 || wait) {
+  if (landmark_poller->QueueSize() > 0) {
     out_of_frame = false;
-    // Get the landmark list.
+    // Get the most recent landmark list.
     mediapipe::Packet landmark_packet;
-    landmark_poller->Next(&landmark_packet);
+    while (landmark_poller->QueueSize() > 0) {
+      landmark_poller->Next(&landmark_packet);
+    }
     const mediapipe::NormalizedLandmarkList& landmark_list = landmark_packet.Get<mediapipe::NormalizedLandmarkList>();
     // Build the pose from the landmark list.
     pose = Pose();
@@ -102,8 +112,8 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
       pose.addLandmark(Landmark(body_part, position, visibility, presence));
     }
   } else {
-    if (out_of_frame) {
-      // If out of frame, set the pose to empty.
+    if (wait || out_of_frame) {
+      // The pose is out of frame. Set the pose to empty.
       pose = Pose();
     }
     out_of_frame = true;
