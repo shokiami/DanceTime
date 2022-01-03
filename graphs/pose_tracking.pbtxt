@@ -6,9 +6,21 @@ input_stream: "input_video"
 # Pose landmarks (NormalizedLandmarkList).
 output_stream: "pose_landmarks"
 
+# Subgraph that limits the images flowing downstream to prevent back-ups.
+node {
+  calculator: "FlowLimiterCalculator"
+  input_stream: "input_video"
+  input_stream: "FINISHED:pose_landmarks"
+  input_stream_info: {
+    tag_index: "FINISHED"
+    back_edge: true
+  }
+  output_stream: "throttled_input_video"
+}
+
 # Subgraph that detects poses and corresponding landmarks.
 node {
   calculator: "PoseLandmarkCpu"
-  input_stream: "IMAGE:input_video"
+  input_stream: "IMAGE:throttled_input_video"
   output_stream: "LANDMARKS:pose_landmarks"
 }

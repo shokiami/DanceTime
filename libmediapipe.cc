@@ -95,11 +95,9 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
   // If there is a new landmark packet, then update pose.
   if (landmark_poller->QueueSize() > 0) {
     out_of_frame = false;
-    // Get the most recent landmark list.
+    // Get the landmark list.
     mediapipe::Packet landmark_packet;
-    while (landmark_poller->QueueSize() > 0) {
-      landmark_poller->Next(&landmark_packet);
-    }
+    landmark_poller->Next(&landmark_packet);
     const mediapipe::NormalizedLandmarkList& landmark_list = landmark_packet.Get<mediapipe::NormalizedLandmarkList>();
     // Build the pose from the landmark list.
     pose = Pose();
