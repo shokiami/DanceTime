@@ -16,7 +16,7 @@ Landmark::Landmark(std::string body_part, cv::Point3d position, double visibilit
   body_part(body_part), position(position), visibility(visibility), presence(presence) {}
 
 bool Landmark::isVisible() {
-  return visibility > min_visibility && presence > min_presence;
+  return visibility > min_visibility;
 }
 
 cv::Point2d Landmark::framePosition(cv::Mat& frame) {
