@@ -1,6 +1,3 @@
-#ifndef POSE_H
-#define POSE_H
-
 #include "defs.h"
 
 class PoseEstimator {
@@ -44,5 +41,3 @@ class Landmark {
   double presence;
   static constexpr double min_visibility = 0.1;
 };
-
-#endif
