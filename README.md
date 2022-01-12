@@ -4,7 +4,7 @@ Welcome to DanceTime!
 
 Compiling:
 ```
-make main
+make
 ```
 Running:
 ```
