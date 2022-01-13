@@ -5,42 +5,7 @@
 #include "mediapipe/framework/port/parse_text_proto.h"
 #include "mediapipe/framework/formats/landmark.pb.h"
 
-class PoseEstimator;
-class Pose;
-class Landmark;
-
-class PoseEstimator {
-  public:
-  PoseEstimator();
-  ~PoseEstimator();
-  Pose getPose(cv::Mat& frame, bool wait = false);
-
-  private:
-  std::vector<std::string> body_parts = 
-    { "nose", "right eye (inner)", "right eye", "right eye (outer)", "left eye (inner)", "left eye", "left eye (outer)", 
-      "right ear", "left ear", "mouth (right)", "mouth (left)", "right shoulder", "left shoulder", "right elbow", "left elbow", 
-      "right wrist", "left wrist", "right pinky", "left pinky", "right index", "left index", "right thumb", "left thumb", 
-      "right hip", "left hip", "right knee", "left knee", "right ankle", "left ankle", "right heel", "left heel", "right foot index", "left foot index" };
-};
-
-class Pose {
-  public:
-  void addLandmark(Landmark landmark);
-
-  private:
-  std::vector<Landmark> landmarks;
-};
-
-class Landmark {
-  public:
-  Landmark(std::string body_part, cv::Point3d position, double visibility, double presence);
-
-  private:
-  std::string body_part;
-  cv::Point3d position;
-  double visibility;
-  double presence;
-};
+#include "pose.h"
 
 constexpr char kInputStream[] = "input_video";
 constexpr char kOutputStream[] = "pose_landmarks";
