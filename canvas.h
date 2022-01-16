@@ -1,3 +1,6 @@
+#ifndef CANVAS_H
+#define CANVAS_H
+
 #include "defs.h"
 
 class Canvas {
@@ -27,3 +30,5 @@ class Canvas {
       {"right ankle", "right foot index"}, {"right foot index", "right heel"}, {"right heel", "right ankle"}, 
     };
 };
+
+#endif
