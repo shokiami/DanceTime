@@ -16,14 +16,17 @@ Pose pose;
 bool out_of_frame;
 
 PoseEstimator::PoseEstimator() {
+  // Get the calculator graph configuration.
   std::cout << "Getting calculator graph configuration." << std::endl;
   std::string calculator_graph_config_contents;
   mediapipe::file::GetContents(calculator_graph_config_file, &calculator_graph_config_contents);
   mediapipe::CalculatorGraphConfig config =
     mediapipe::ParseTextProtoOrDie<mediapipe::CalculatorGraphConfig>(calculator_graph_config_contents);
+  // Initialize the calculator graph.
   std::cout << "Initializing calculator graph." << std::endl;
   graph = new mediapipe::CalculatorGraph();
   graph->Initialize(config);
+  // Start to run the calculator graph.
   std::cout << "Starting to run calculator graph." << std::endl;
   landmark_poller = new mediapipe::OutputStreamPoller(std::move(*graph->AddOutputStreamPoller(kOutputStream)));
   graph->StartRun({});
