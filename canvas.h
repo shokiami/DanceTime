@@ -1,5 +1,5 @@
-#ifndef CANVAS_H
-#define CANVAS_H
+#ifndef CANVAS_H_
+#define CANVAS_H_
 
 #include "defs.h"
 

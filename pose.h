@@ -1,5 +1,5 @@
-#ifndef POSE_H
-#define POSE_H
+#ifndef POSE_H_
+#define POSE_H_
 
 #include "defs.h"
 
