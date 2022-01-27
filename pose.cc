@@ -5,7 +5,15 @@ void Pose::addLandmark(Landmark landmark) {
 }
 
 Landmark Pose::getLandmark(std::string body_part) {
-  return *std::find_if(landmarks.begin(), landmarks.end(), [body_part](Landmark landmark) { return landmark.getBodyPart() == body_part; });
+  std::vector<Landmark>::iterator itr =
+    std::find_if(landmarks.begin(), landmarks.end(), [body_part](Landmark landmark) {
+      return landmark.getBodyPart() == body_part; 
+    });
+  if (itr == landmarks.end()) {
+    std::cerr << "ERROR: Invalid body part \"" << body_part << "\" in Pose::getLandmark()." << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  return *itr;
 }
 
 bool Pose::isEmpty() {
