@@ -35,6 +35,8 @@ PoseEstimator::PoseEstimator() {
 
 PoseEstimator::~PoseEstimator() {
   graph->CloseInputStream(kInputStream);
+  delete landmark_poller;
+  delete graph;
 }
 
 Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
