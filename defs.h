@@ -12,5 +12,6 @@ class PoseEstimator;
 class Pose;
 class Landmark;
 class Canvas;
+class Video;
 
 #endif
