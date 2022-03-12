@@ -1,3 +1,5 @@
 main
 *.o
+*.csv
+*.mp4
 .DS_Store
