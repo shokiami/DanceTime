@@ -1,5 +1,9 @@
 #include "pose.h"
 
+std::vector<std::string> PoseEstimator::getBodyParts() {
+  return body_parts;
+}
+
 void Pose::addLandmark(Landmark landmark) {
   landmarks.push_back(landmark);
 }
@@ -28,8 +32,8 @@ bool Landmark::isVisible() {
 }
 
 cv::Point2d Landmark::framePosition(cv::Mat& frame) {
-  const size_t frame_width = frame.size[1];
-  const size_t frame_height = frame.size[0];
+  const int frame_width = frame.size[1];
+  const int frame_height = frame.size[0];
   return cv::Point2d(position.x * frame_width, position.y * frame_height);
 }
 
