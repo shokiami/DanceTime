@@ -50,16 +50,15 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
   cv::Mat input_frame_mat = mediapipe::formats::MatView(input_frame.get());
   frame.copyTo(input_frame_mat);
   // Send the image packet into the graph.
-  size_t frame_timestamp_us = (double)cv::getTickCount() / (double)cv::getTickFrequency() * 1e6;
+  size_t start_time = (double) cv::getTickCount() / cv::getTickFrequency() * 1e6;
   graph->AddPacketToInputStream(kInputStream, 
-    mediapipe::Adopt(input_frame.release()).At(mediapipe::Timestamp(frame_timestamp_us)));
-  // If 'wait', then wait until the graph returns a new landmark packet or 100 milliseconds pass by.
+    mediapipe::Adopt(input_frame.release()).At(mediapipe::Timestamp(start_time)));
+  // If 'wait', then wait until the graph returns a new landmark packet or 0.1 seconds pass by.
   if (wait) {
-    size_t start_time = (double)cv::getTickCount() / (double)cv::getTickFrequency() * 1e3;
     size_t current_time = start_time;
-    while (landmark_poller->QueueSize() == 0 && current_time - start_time < 100) {
+    while (landmark_poller->QueueSize() == 0 && (current_time - start_time) * 1e-6 < 0.1) {
       // Wait.
-      current_time = (double)cv::getTickCount() / (double)cv::getTickFrequency() * 1e3;
+      current_time = (double) cv::getTickCount() / cv::getTickFrequency() * 1e6;
     }
   }
   // If there is a new landmark packet, then update pose.
@@ -71,7 +70,7 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
     const mediapipe::NormalizedLandmarkList& landmark_list = landmark_packet.Get<mediapipe::NormalizedLandmarkList>();
     // Build the pose from the landmark list.
     pose = Pose();
-    for (size_t i = 0; i < body_parts.size(); i++) {
+    for (int i = 0; i < body_parts.size(); i++) {
       const mediapipe::NormalizedLandmark& landmark = landmark_list.landmark(i);
       const std::string body_part = body_parts[i];
       const cv::Point3d position(landmark.x(), landmark.y(), landmark.z());
