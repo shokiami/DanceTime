@@ -48,8 +48,7 @@ Video::Video(std::string name) : name(name), capture(name + ".mp4") {
     std::cerr << "ERROR: Unable to open file \"" << name << ".mp4 \" in Video::Video()." << std::endl;
     exit(EXIT_FAILURE);
   }
-  num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
-  fps = capture.get(cv::CAP_PROP_FPS);
+  int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   poses.reserve(num_frames);
   std::ifstream file (name + ".csv");
   for (int i = 0; i < num_frames; i++) {
@@ -79,7 +78,7 @@ void Video::play() {
 }
 
 bool Video::finished() {
-  return getIndex() >= num_frames;
+  return getIndex() >= length();
 }
 
 cv::Mat Video::getFrame() {
@@ -101,8 +100,20 @@ std::string Video::getName() {
   return name;
 }
 
+int Video::getWidth() {
+  return capture.get(cv::CAP_PROP_FRAME_WIDTH);
+}
+
+int Video::getHeight() {
+  return capture.get(cv::CAP_PROP_FRAME_HEIGHT);
+}
+
 int Video::length() {
-  return num_frames;
+  return capture.get(cv::CAP_PROP_FRAME_COUNT);
+}
+
+int Video::getFPS() {
+  return capture.get(cv::CAP_PROP_FPS);
 }
 
 double Video::getTime() {
@@ -111,5 +122,5 @@ double Video::getTime() {
 }
 
 int Video::getIndex() {
-  return (int) fps * getTime();
+  return (int) getFPS() * getTime();
 }

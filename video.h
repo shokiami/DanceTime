@@ -19,14 +19,15 @@ class Video {
   cv::Mat getFrame();
   Pose getPose();
   std::string getName();
+  int getWidth();
+  int getHeight();
   int length();
+  int getFPS();
 
   private:
   std::string name;
   time_point start_time;
-  int num_frames;
   int current_frame;
-  double fps;
   cv::VideoCapture capture;
   std::vector<Pose> poses;
   int getIndex();
