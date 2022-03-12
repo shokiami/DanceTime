@@ -28,7 +28,7 @@ void VideoLoader::saveVideo(std::string name) {
     if (pose.isEmpty()) {
       file << "empty" << std::endl;
     } else {
-      for (std::string body_part : pose_estimator.getBodyParts()) {
+      for (std::string body_part : PoseEstimator::body_parts) {
         Landmark landmark = pose.getLandmark(body_part);
         file << landmark.getPosition().x << " ";
         file << landmark.getPosition().y << " ";
@@ -43,8 +43,8 @@ void VideoLoader::saveVideo(std::string name) {
   }
 }
 
-Video::Video(std::string name) : name(name) {
-  capture = cv::VideoCapture(name + ".mp4");
+Video::Video(std::string name) : name(name), capture(name + ".mp4") {
+  // capture = cv::VideoCapture(name + ".mp4");
   if (!capture.isOpened()) {
     std::cerr << "ERROR: Unable to open file \"" << name << ".mp4 \" in Video::Video()." << std::endl;
     exit(EXIT_FAILURE);
@@ -52,7 +52,6 @@ Video::Video(std::string name) : name(name) {
   num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   fps = capture.get(cv::CAP_PROP_FPS);
   poses.reserve(num_frames);
-  PoseEstimator pose_estimator;
   std::ifstream file (name + ".csv");
   for (int i = 0; i < num_frames; i++) {
     Pose pose;
@@ -63,7 +62,7 @@ Video::Video(std::string name) : name(name) {
       std::string temp;
       file >> temp;
     } else {
-      for (std::string body_part : pose_estimator.getBodyParts()) {
+      for (std::string body_part : PoseEstimator::body_parts) {
         double x, y, z, visibility, presence;
         file >> x >> y >> z >> visibility >> presence;
         cv::Point3d position(x, y, z);
