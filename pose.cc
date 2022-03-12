@@ -33,12 +33,6 @@ bool Landmark::isVisible() {
   return visibility > min_visibility;
 }
 
-cv::Point2d Landmark::framePosition(cv::Mat& frame) {
-  const int frame_width = frame.size[1];
-  const int frame_height = frame.size[0];
-  return cv::Point2d(position.x * frame_width, position.y * frame_height);
-}
-
 std::string Landmark::getBodyPart() {
   return body_part;
 }

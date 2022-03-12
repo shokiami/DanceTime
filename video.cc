@@ -44,7 +44,6 @@ void VideoLoader::saveVideo(std::string name) {
 }
 
 Video::Video(std::string name) : name(name), capture(name + ".mp4") {
-  // capture = cv::VideoCapture(name + ".mp4");
   if (!capture.isOpened()) {
     std::cerr << "ERROR: Unable to open file \"" << name << ".mp4 \" in Video::Video()." << std::endl;
     exit(EXIT_FAILURE);

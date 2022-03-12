@@ -25,7 +25,6 @@ class Landmark {
   public:
   Landmark(std::string body_part, cv::Point3d position, double visibility, double presence);
   bool isVisible();
-  cv::Point2d framePosition(cv::Mat& frame);
   std::string getBodyPart();
   cv::Point3d getPosition();
   double getVisibility();
