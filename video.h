@@ -15,14 +15,15 @@ class Video {
   Video(string name);
   void play();
   bool finished();
-  double getTime();
   cv::Mat getFrame();
   Pose getPose();
   string getName();
   int getWidth();
   int getHeight();
   int length();
-  double getFPS();
+  int getFPS();
+  double getTime();
+  double getTotalTime();
 
   private:
   string name;

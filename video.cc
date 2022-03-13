@@ -112,13 +112,17 @@ int Video::length() {
   return capture.get(cv::CAP_PROP_FRAME_COUNT);
 }
 
-double Video::getFPS() {
-  return capture.get(cv::CAP_PROP_FPS);
+int Video::getFPS() {
+  return capture.get(cv::CAP_PROP_FPS) + 0.5;
 }
 
 double Video::getTime() {
   time_point current_time = std::chrono::steady_clock::now();
   return std::chrono::duration_cast<std::chrono::nanoseconds>(current_time - start_time).count() * 1e-9;
+}
+
+double Video::getTotalTime() {
+  return (double) length() / getFPS();
 }
 
 int Video::getIndex() {
