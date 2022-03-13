@@ -9,7 +9,7 @@ i = 0
 fps = cap.get(5)
 while(cap.isOpened()):
   now = time.time_ns()
-  index = int(fps * (now - start) / 1e9)
+  index = int(fps * (now - start) * 1e-9)
   while (curr < index - 1):
     cap.grab()
     curr += 1

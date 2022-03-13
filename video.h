@@ -22,7 +22,7 @@ class Video {
   int getWidth();
   int getHeight();
   int length();
-  int getFPS();
+  double getFPS();
 
   private:
   string name;
