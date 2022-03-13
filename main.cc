@@ -23,19 +23,20 @@ int main() {
       int target_width = video.getWidth() * height / video.getHeight();
       camera_frame = camera_frame(cv::Range(0, height),
         cv::Range(width / 2 - target_width / 2, width / 2 + target_width / 2));
-
+      
       cv::Mat video_frame;
       video_frame = video.getFrame();
+      resize(video_frame, video_frame, cv::Size(target_width, height));
       Pose video_pose = video.getPose();
       canvas.renderPose(video_frame, video_pose);
-      resize(video_frame, video_frame, cv::Size(target_width, height));
-
+      
       cv::Mat frame;
       cv::hconcat(video_frame, camera_frame, frame);
       cv::imshow("DanceTime", frame);
       cv::waitKey(1);
     }
   }
+  
   return EXIT_SUCCESS;
 }
 
