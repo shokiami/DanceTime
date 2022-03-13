@@ -14,4 +14,13 @@ class Landmark;
 class Canvas;
 class Video;
 
+using std::cout;
+using std::endl;
+using std::cerr;
+using std::string;
+using std::vector;
+using std::pair;
+using std::ifstream;
+using std::ofstream;
+
 #endif

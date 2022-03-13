@@ -3,7 +3,7 @@
 
 void Canvas::renderPose(cv::Mat& frame, Pose& pose) {
   if (!pose.isEmpty()) {
-    for (std::pair<std::string, std::string> body_parts : pose_lines) {
+    for (pair<string, string> body_parts : pose_lines) {
       Landmark landmark_1 = pose.getLandmark(body_parts.first);
       Landmark landmark_2 = pose.getLandmark(body_parts.second);
       if (landmark_1.isVisible() && landmark_2.isVisible()) {
@@ -19,7 +19,7 @@ void Canvas::renderPose(cv::Mat& frame, Pose& pose) {
   }
 }
 
-std::vector<std::pair<std::string, std::string>> Canvas::pose_lines =
+vector<pair<string, string>> Canvas::pose_lines =
   { // Face.
     {"left eye (outer)", "left eye"}, {"left eye", "left eye (inner)"}, {"left eye (inner)", "nose"}, 
     {"nose", "right eye (inner)"}, {"right eye (inner)", "right eye"}, {"right eye", "right eye (outer)"}, 

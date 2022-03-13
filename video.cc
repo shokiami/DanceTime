@@ -3,10 +3,10 @@
 #include "canvas.h"
 #include <fstream>
 
-void VideoLoader::saveVideo(std::string name) {
+void VideoLoader::saveVideo(string name) {
   cv::VideoCapture capture(name + ".mp4");
   if (!capture.isOpened()) {
-    std::cerr << "ERROR: Unable to open file \"" << name << ".mp4 \" in VideoLoader::saveVideo()." << std::endl;
+    cerr << "ERROR: Unable to open file \"" << name << ".mp4 \" in VideoLoader::saveVideo()." << endl;
     exit(EXIT_FAILURE);
   }
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
@@ -16,51 +16,51 @@ void VideoLoader::saveVideo(std::string name) {
   Canvas canvas;
   capture.read(frame);
   if (frame.empty()) {
-    std::cerr << "ERROR: Empty frame from \"" << name << ".mp4 \" in VideoLoader::saveVideo()." << std::endl;
+    cerr << "ERROR: Empty frame from \"" << name << ".mp4 \" in VideoLoader::saveVideo()." << endl;
     exit(EXIT_FAILURE);
   }
-  std::ofstream file (name + ".csv");
+  ofstream file (name + ".csv");
   while(!frame.empty()) {
     Pose pose = pose_estimator.getPose(frame, true);
     canvas.renderPose(frame, pose);
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
     if (pose.isEmpty()) {
-      file << "empty" << std::endl;
+      file << "empty" << endl;
     } else {
-      for (std::string body_part : PoseEstimator::body_parts) {
+      for (string body_part : PoseEstimator::body_parts) {
         Landmark landmark = pose.getLandmark(body_part);
         file << landmark.getPosition().x << " ";
         file << landmark.getPosition().y << " ";
         file << landmark.getPosition().z << " ";
         file << landmark.getVisibility() << " ";
-        file << landmark.getPresence() << std::endl;
+        file << landmark.getPresence() << endl;
       }
     }
     current_frame++;
-    std::cout << (double) current_frame / num_frames << std::endl;
+    cout << (double) current_frame / num_frames << endl;
     capture.read(frame);
   }
 }
 
-Video::Video(std::string name) : name(name), capture(name + ".mp4") {
+Video::Video(string name) : name(name), capture(name + ".mp4") {
   if (!capture.isOpened()) {
-    std::cerr << "ERROR: Unable to open file \"" << name << ".mp4 \" in Video::Video()." << std::endl;
+    cerr << "ERROR: Unable to open file \"" << name << ".mp4 \" in Video::Video()." << endl;
     exit(EXIT_FAILURE);
   }
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   poses.reserve(num_frames);
-  std::ifstream file (name + ".csv");
+  ifstream file (name + ".csv");
   for (int i = 0; i < num_frames; i++) {
     Pose pose;
     while (!file.eof() && std::isspace(file.peek())) {
       file.get();
     }
     if (file.peek() == 'e') {
-      std::string temp;
+      string temp;
       file >> temp;
     } else {
-      for (std::string body_part : PoseEstimator::body_parts) {
+      for (string body_part : PoseEstimator::body_parts) {
         double x, y, z, visibility, presence;
         file >> x >> y >> z >> visibility >> presence;
         cv::Point3d position(x, y, z);
@@ -96,7 +96,7 @@ Pose Video::getPose() {
   return poses[getIndex()];
 }
 
-std::string Video::getName() {
+string Video::getName() {
   return name;
 }
 

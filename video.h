@@ -7,29 +7,29 @@ using time_point = std::chrono::time_point<std::chrono::steady_clock>;
 
 class VideoLoader {
   public:
-  void saveVideo(std::string name);
+  void saveVideo(string name);
 };
 
 class Video {
   public:
-  Video(std::string name);
+  Video(string name);
   void play();
   bool finished();
   double getTime();
   cv::Mat getFrame();
   Pose getPose();
-  std::string getName();
+  string getName();
   int getWidth();
   int getHeight();
   int length();
   int getFPS();
 
   private:
-  std::string name;
+  string name;
   time_point start_time;
   int current_frame;
   cv::VideoCapture capture;
-  std::vector<Pose> poses;
+  vector<Pose> poses;
   int getIndex();
 };
 

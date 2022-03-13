@@ -9,7 +9,7 @@
 
 constexpr char kInputStream[] = "input_video";
 constexpr char kOutputStream[] = "pose_landmarks";
-std::string calculator_graph_config_file = "graphs/pose_tracking.pbtxt";
+string calculator_graph_config_file = "graphs/pose_tracking.pbtxt";
 mediapipe::CalculatorGraph* graph;
 mediapipe::OutputStreamPoller* landmark_poller;
 Pose pose;
@@ -17,17 +17,17 @@ bool out_of_frame;
 
 PoseEstimator::PoseEstimator() {
   // Get the calculator graph configuration.
-  std::cout << "Getting calculator graph configuration." << std::endl;
-  std::string calculator_graph_config_contents;
+  cout << "Getting calculator graph configuration." << endl;
+  string calculator_graph_config_contents;
   mediapipe::file::GetContents(calculator_graph_config_file, &calculator_graph_config_contents);
   mediapipe::CalculatorGraphConfig config =
     mediapipe::ParseTextProtoOrDie<mediapipe::CalculatorGraphConfig>(calculator_graph_config_contents);
   // Initialize the calculator graph.
-  std::cout << "Initializing calculator graph." << std::endl;
+  cout << "Initializing calculator graph." << endl;
   graph = new mediapipe::CalculatorGraph();
   graph->Initialize(config);
   // Start to run the calculator graph.
-  std::cout << "Starting to run calculator graph." << std::endl;
+  cout << "Starting to run calculator graph." << endl;
   landmark_poller = new mediapipe::OutputStreamPoller(std::move(*graph->AddOutputStreamPoller(kOutputStream)));
   graph->StartRun({});
   out_of_frame = false;
@@ -72,7 +72,7 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
     pose = Pose();
     for (int i = 0; i < body_parts.size(); i++) {
       const mediapipe::NormalizedLandmark& landmark = landmark_list.landmark(i);
-      const std::string body_part = body_parts[i];
+      const string body_part = body_parts[i];
       const cv::Point3d position(landmark.x(), landmark.y(), landmark.z());
       const double visibility = landmark.visibility();
       const double presence = landmark.presence();
