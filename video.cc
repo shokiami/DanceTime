@@ -51,6 +51,7 @@ Video::Video(string name) : name(name), capture(name + ".mp4") {
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   poses.reserve(num_frames);
   ifstream file (name + ".csv");
+  cout << "Loading " << name << ".mp4..." << endl;
   for (int i = 0; i < num_frames; i++) {
     Pose pose;
     while (!file.eof() && std::isspace(file.peek())) {
@@ -69,7 +70,6 @@ Video::Video(string name) : name(name), capture(name + ".mp4") {
     }
     poses.push_back(pose);
   }
-  play();
 }
 
 void Video::play() {
