@@ -27,9 +27,8 @@ class Video {
 
   private:
   string name;
-  time_point start_time;
-  int current_frame;
   cv::VideoCapture capture;
+  time_point start_time;
   vector<Pose> poses;
   int getIndex();
 };

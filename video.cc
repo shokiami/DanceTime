@@ -73,7 +73,6 @@ Video::Video(string name) : name(name), capture(name + ".mp4") {
 }
 
 void Video::play() {
-  current_frame = 0;
   start_time = std::chrono::steady_clock::now();
 }
 
@@ -82,13 +81,11 @@ bool Video::finished() {
 }
 
 cv::Mat Video::getFrame() {
-  while (current_frame < getIndex() - 1) {
+  for (int i = capture.get(cv::CAP_PROP_POS_FRAMES); i < getIndex() - 1; i++) {
     capture.grab();
-    current_frame++;
   }
   cv::Mat frame;
   capture.read(frame);
-  current_frame++;
   return frame;
 }
 
