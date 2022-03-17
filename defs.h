@@ -13,6 +13,7 @@ class Pose;
 class Landmark;
 class Canvas;
 class Video;
+class Audio;
 
 using std::cout;
 using std::endl;

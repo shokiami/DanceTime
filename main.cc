@@ -1,17 +1,20 @@
 #include "pose.h"
 #include "canvas.h"
 #include "video.h"
+#include "audio.h"
 
 int main() {
   Video video("blackpink");
+  Audio audio("blackpink");
 
   cv::VideoCapture capture(0);
   PoseEstimator pose_estimator;
   Canvas canvas;
 
   video.play();
+  audio.play();
 
-  while (!video.finished()) {
+  while ((cv::waitKey(1) & 0xFF) != 'q' && !video.finished()) {
     cv::Mat camera_frame;
     capture.read(camera_frame);
     if (!camera_frame.empty()) {
@@ -33,9 +36,12 @@ int main() {
       cv::Mat frame;
       cv::hconcat(video_frame, camera_frame, frame);
       cv::imshow("DanceTime", frame);
-      cv::waitKey(1);
     }
+
+    audio.updateBuffer();
   }
+
+  cout << "Closing..." << endl;
   
   return EXIT_SUCCESS;
 }
