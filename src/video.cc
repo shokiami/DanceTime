@@ -56,7 +56,6 @@ Video::Video(string name) : name(name) {
   if (!csv_file.good()) {
     ERROR("Unable to open file \"" + csv_filename + "\".");
   }
-  cout << "Loading " << csv_filename << "..." << endl;
   for (int i = 0; i < num_frames; i++) {
     Pose pose;
     while (!csv_file.eof() && std::isspace(csv_file.peek())) {

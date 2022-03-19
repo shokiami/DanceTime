@@ -6,11 +6,6 @@ Game::Game() : capture(0), video("blackpink"), audio("blackpink") {
   previous_time = std::chrono::steady_clock::now();
 }
 
-Game::~Game() {
-  cout << endl;
-  cout << "Closing DanceTime." << endl;
-}
-
 bool Game::isFinished() {
   return keyCode == 'q' || video.isFinished();
 }

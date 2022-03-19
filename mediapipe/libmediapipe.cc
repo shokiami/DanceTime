@@ -17,17 +17,14 @@ bool out_of_frame;
 
 PoseEstimator::PoseEstimator() {
   // Get the calculator graph configuration.
-  cout << "Getting calculator graph configuration." << endl;
   string calculator_graph_config_contents;
   mediapipe::file::GetContents(calculator_graph_config_file, &calculator_graph_config_contents);
   mediapipe::CalculatorGraphConfig config =
     mediapipe::ParseTextProtoOrDie<mediapipe::CalculatorGraphConfig>(calculator_graph_config_contents);
   // Initialize the calculator graph.
-  cout << "Initializing calculator graph." << endl;
   graph = new mediapipe::CalculatorGraph();
   graph->Initialize(config);
   // Start to run the calculator graph.
-  cout << "Starting to run calculator graph." << endl;
   landmark_poller = new mediapipe::OutputStreamPoller(std::move(*graph->AddOutputStreamPoller(kOutputStream)));
   graph->StartRun({});
   out_of_frame = false;

@@ -12,7 +12,6 @@ using time_point = std::chrono::time_point<std::chrono::steady_clock>;
 class Game {
   public:
   Game();
-  ~Game();
   bool isFinished();
   void update();
   void render();
