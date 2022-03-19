@@ -27,6 +27,12 @@ class Audio {
   AVPacket* pPacket;
   int audio_index;
   int sample_rate;
+  void initAVCodec();
+  void initRtAudio();
+  void readPacket();
+  void decodePacket();
+  void extractFrameData();
+
   template <typename T>
   class CyclicQueue {
     public:
@@ -44,11 +50,6 @@ class Audio {
     int size;
   };
   CyclicQueue<float> buffer;
-  void initAVCodec();
-  void initRtAudio();
-  void readPacket();
-  void decodePacket();
-  void extractFrameData();
 };
 
 #endif
