@@ -34,7 +34,7 @@ void Game::update() {
   time_point current_time = std::chrono::steady_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time - previous_time).count() * 1e-9;
   previous_time = current_time;
-  fps = (int) 1 / elapsed_time;
+  fps = 1 / elapsed_time;
 }
 
 void Game::render() {
