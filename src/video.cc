@@ -84,7 +84,7 @@ void Video::play() {
   start_time = std::chrono::steady_clock::now();
 }
 
-bool Video::finished() {
+bool Video::isFinished() {
   return getIndex() >= length();
 }
 
@@ -117,7 +117,7 @@ int Video::length() {
   return capture.get(cv::CAP_PROP_FRAME_COUNT);
 }
 
-int Video::getFPS() {
+int Video::getFps() {
   return capture.get(cv::CAP_PROP_FPS) + 0.5;
 }
 
@@ -127,9 +127,9 @@ double Video::getTime() {
 }
 
 double Video::getTotalTime() {
-  return (double) length() / getFPS();
+  return (double) length() / getFps();
 }
 
 int Video::getIndex() {
-  return getFPS() * getTime();
+  return getFps() * getTime();
 }

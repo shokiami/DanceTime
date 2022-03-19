@@ -14,14 +14,14 @@ class Video {
   public:
   Video(string name);
   void play();
-  bool finished();
+  bool isFinished();
   cv::Mat getFrame();
   Pose getPose();
   string getName();
   int getWidth();
   int getHeight();
   int length();
-  int getFPS();
+  int getFps();
   double getTime();
   double getTotalTime();
 
