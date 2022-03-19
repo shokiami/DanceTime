@@ -1,13 +1,14 @@
 #ifndef DEFS_H_
 #define DEFS_H_
 
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include <iostream>
-#include <vector>
-#include <string>
-
+class Game;
 class PoseEstimator;
 class Pose;
 class Landmark;
