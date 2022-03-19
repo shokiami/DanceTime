@@ -8,8 +8,7 @@ void VideoLoader::saveVideo(string name) {
   string csv_filename = name + ".csv";
   cv::VideoCapture capture("videos/" + video_filename);
   if (!capture.isOpened()) {
-    cerr << "ERROR: Unable to open file " << video_filename << " in VideoLoader::saveVideo()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Unable to open file \"" + video_filename + "\".");
   }
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   int current_frame = 0;
@@ -18,8 +17,7 @@ void VideoLoader::saveVideo(string name) {
   Canvas canvas;
   capture.read(frame);
   if (frame.empty()) {
-    cerr << "ERROR: Empty frame from " << video_filename << " in VideoLoader::saveVideo()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Empty frame from \"" + video_filename + "\".");
   }
   ofstream csv_file ("data/" + csv_filename);
   while(!frame.empty()) {
@@ -50,14 +48,13 @@ Video::Video(string name) : name(name) {
   string csv_filename = name + ".csv";
   capture = cv::VideoCapture("videos/" + video_filename);
   if (!capture.isOpened()) {
-    cerr << "ERROR: Unable to open file " << video_filename << " in Video::Video()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Unable to open file \"" + video_filename + "\".");
   }
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   poses.reserve(num_frames);
   ifstream csv_file("data/" + csv_filename);
   if (!csv_file.good()) {
-    cerr << "ERROR: Unable to open file " << csv_filename << " in Video::Video()." << endl;
+    ERROR("Unable to open file \"" + csv_filename + "\".");
   }
   cout << "Loading " << csv_filename << "..." << endl;
   for (int i = 0; i < num_frames; i++) {

@@ -21,20 +21,18 @@ Audio::~Audio() {
 
 int callback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void* userData) {
   if (status) {
-    cerr << "ERROR: Stream underflow detected." << endl;
-    return EXIT_FAILURE;
+    ERROR("Stream underflow detected.");
   }
 
   Audio* audio = (Audio*) userData;
 
   if (2 * nBufferFrames > audio->buffer.getSize()) {
-    cerr << "ERROR: Not enough audio data in buffer." << endl;
-    return EXIT_FAILURE;
+    ERROR("Not enough audio data in buffer.");
   }
 
   audio->buffer.dequeue((float*) outputBuffer, 2 * nBufferFrames);
 
-  return EXIT_SUCCESS;
+  return 0;
 }
 
 void Audio::initAVCodec() {
@@ -42,13 +40,11 @@ void Audio::initAVCodec() {
 
   pFormatContext = avformat_alloc_context();
   if (avformat_open_input(&pFormatContext, ("videos/" + video_filename).c_str(), nullptr, nullptr) != 0) {
-    cerr << "ERROR: Unable to open file " << video_filename << " in Audio::initAVCodec()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Unable to open file \"" + video_filename + "\".");
   }
 
   if (avformat_find_stream_info(pFormatContext, nullptr) < 0) {
-    cerr << "ERROR: Could not get the stream info in Audio::initAVCodec()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Could not get the stream info.");
   }
 
   const AVCodec* pCodec = nullptr;
@@ -67,19 +63,16 @@ void Audio::initAVCodec() {
   }
 
   if (audio_index == -1) {
-    cerr << "ERROR: Could not find audio codec in Audio::initAVCodec()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Could not find the audio codec.");
   }
 
   pCodecContext = avcodec_alloc_context3(pCodec);
   if (avcodec_parameters_to_context(pCodecContext, pCodecParameters) < 0) {
-    cerr << "ERROR: Failed to copy codec params to codec context in Audio::initAVCodec()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Failed to copy codec params to codec context.");
   }
 
   if (avcodec_open2(pCodecContext, pCodec, nullptr) < 0) {
-    cerr << "ERROR: Failed to open codec in Audio::initAVCodec()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Failed to open codec.");
   }
 
   pFrame = av_frame_alloc();
@@ -92,8 +85,7 @@ void Audio::initAVCodec() {
 
 void Audio::initRtAudio() {
   if (rta.getDeviceCount() < 1) {
-    cerr << "ERROR: No audio devices found in Audio::initRtAudio()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("No audio devices found.");
   }
   RtAudio::StreamParameters parameters;
   parameters.deviceId = rta.getDefaultOutputDevice();
@@ -131,8 +123,7 @@ void Audio::decodePacket() {
   int response = avcodec_send_packet(pCodecContext, pPacket);
 
   if (response < 0) {
-    cerr << "ERROR: Failed to send packet to the decoder in Audio::decodePacket()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Failed to send packet to the decoder.");
   }
 
   while (response >= 0) {
@@ -141,8 +132,7 @@ void Audio::decodePacket() {
     if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
       break;
     } else if (response < 0) {
-      cerr << "ERROR: Failed to receive frame from the decoder in Audio::decodePacket()." << endl;
-      exit(EXIT_FAILURE);
+      ERROR("Failed to receive frame from the decoder.");
     }
 
     if (response >= 0) {

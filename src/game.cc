@@ -18,16 +18,14 @@ bool Game::isFinished() {
 void Game::update() {
   capture.read(camera_frame);
   if (camera_frame.empty()) {
-    cerr << "ERROR: Empty frame from camera in Game::update()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Empty frame from camera.");
   }
   cv::flip(camera_frame, camera_frame, 1);
   camera_pose = pose_estimator.getPose(camera_frame);
   
   video_frame = video.getFrame();
   if (video_frame.empty()) {
-    cerr << "ERROR: Empty frame from video in Game::update()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Empty frame from video.");
   }
   video_pose = video.getPose();
 

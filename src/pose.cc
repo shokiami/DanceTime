@@ -16,8 +16,7 @@ Landmark Pose::getLandmark(string body_part) {
       return landmark.getBodyPart() == body_part; 
     });
   if (itr == landmarks.end()) {
-    cerr << "ERROR: Invalid body part \"" << body_part << "\" in Pose::getLandmark()." << endl;
-    exit(EXIT_FAILURE);
+    ERROR("Invalid body part \"" + body_part + "\".");
   }
   return *itr;
 }

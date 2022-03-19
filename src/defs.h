@@ -18,11 +18,14 @@ class Audio;
 
 using std::cout;
 using std::endl;
-using std::cerr;
 using std::string;
 using std::vector;
 using std::pair;
 using std::ifstream;
 using std::ofstream;
+
+#define ERROR(message) \
+  std::cerr << "\033[1;31mERROR\033[0m (" << __FILE__ << ":" << __LINE__ << "): " << message << endl; \
+  exit(EXIT_FAILURE);
 
 #endif
