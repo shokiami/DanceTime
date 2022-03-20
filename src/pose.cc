@@ -13,7 +13,7 @@ void Pose::addLandmark(Landmark landmark) {
 Landmark Pose::getLandmark(string body_part) {
   vector<Landmark>::iterator itr =
     std::find_if(landmarks.begin(), landmarks.end(), [body_part](Landmark landmark) {
-      return landmark.getBodyPart() == body_part; 
+      return landmark.body_part == body_part; 
     });
   if (itr == landmarks.end()) {
     ERROR("Invalid body part \"" + body_part + "\".");
@@ -25,25 +25,9 @@ bool Pose::isEmpty() {
   return landmarks.empty();
 }
 
-Landmark::Landmark(string body_part, cv::Point3d position, double visibility, double presence) :
-  body_part(body_part), position(position), visibility(visibility), presence(presence) {}
+Landmark::Landmark(string body_part, double x, double y, double z, double visibility) :
+  body_part(body_part), x(x), y(y), z(z), visibility(visibility) {}
 
 bool Landmark::isVisible() {
   return visibility > min_visibility;
-}
-
-string Landmark::getBodyPart() {
-  return body_part;
-}
-
-cv::Point3d Landmark::getPosition() {
-  return position;
-}
-
-double Landmark::getVisibility() {
-  return visibility;
-}
-
-double Landmark::getPresence() {
-  return presence;
 }

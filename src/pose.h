@@ -23,18 +23,15 @@ class Pose {
 
 class Landmark {
   public:
-  Landmark(string body_part, cv::Point3d position, double visibility, double presence);
+  Landmark(string body_part, double x, double y, double z, double visibility);
   bool isVisible();
-  string getBodyPart();
-  cv::Point3d getPosition();
-  double getVisibility();
-  double getPresence();
+  string body_part;
+  double x;
+  double y;
+  double z;
+  double visibility;
 
   private:
-  string body_part;
-  cv::Point3d position;
-  double visibility;
-  double presence;
   static constexpr double min_visibility = 0.1;
 };
 

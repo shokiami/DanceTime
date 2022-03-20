@@ -9,8 +9,8 @@ void Canvas::renderPose(cv::Mat& frame, Pose& pose) {
       if (landmark_1.isVisible() && landmark_2.isVisible()) {
         const int frame_height = frame.size[0];
         const int frame_width = frame.size[1];
-        cv::Point2d pos_1(landmark_1.getPosition().x * frame_width, landmark_1.getPosition().y * frame_height);
-        cv::Point2d pos_2(landmark_2.getPosition().x * frame_width, landmark_2.getPosition().y * frame_height);
+        cv::Point2d pos_1(landmark_1.x * frame_width, landmark_1.y * frame_height);
+        cv::Point2d pos_2(landmark_2.x * frame_width, landmark_2.y * frame_height);
         cv::line(frame, pos_1, pos_2, cv::Scalar(255, 125, 75), 3, cv::LINE_AA);
         cv::circle(frame, pos_1, 5, cv::Scalar(255, 125, 75), cv::FILLED, cv::LINE_AA);
         cv::circle(frame, pos_2, 5, cv::Scalar(255, 125, 75), cv::FILLED, cv::LINE_AA);

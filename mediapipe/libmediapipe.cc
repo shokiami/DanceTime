@@ -69,11 +69,7 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
     pose = Pose();
     for (int i = 0; i < body_parts.size(); i++) {
       const mediapipe::NormalizedLandmark& landmark = landmark_list.landmark(i);
-      const string body_part = body_parts[i];
-      const cv::Point3d position(landmark.x(), landmark.y(), landmark.z());
-      const double visibility = landmark.visibility();
-      const double presence = landmark.presence();
-      pose.addLandmark(Landmark(body_part, position, visibility, presence));
+      pose.addLandmark(Landmark(body_parts[i], landmark.x(), landmark.y(), landmark.z(), landmark.visibility()));
     }
   } else {
     if (wait || out_of_frame) {

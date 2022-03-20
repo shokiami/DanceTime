@@ -3,7 +3,7 @@
 #include "canvas.h"
 #include <fstream>
 
-void VideoLoader::saveVideo(string name) {
+void VideoLoader::save(string name) {
   string video_filename = name + ".mp4";
   string csv_filename = name + ".csv";
   cv::VideoCapture capture("videos/" + video_filename);
@@ -30,17 +30,15 @@ void VideoLoader::saveVideo(string name) {
     } else {
       for (string body_part : PoseEstimator::body_parts) {
         Landmark landmark = pose.getLandmark(body_part);
-        csv_file << landmark.getPosition().x << " ";
-        csv_file << landmark.getPosition().y << " ";
-        csv_file << landmark.getPosition().z << " ";
-        csv_file << landmark.getVisibility() << " ";
-        csv_file << landmark.getPresence() << endl;
+        csv_file << landmark.x << " " << landmark.y << " " << landmark.z << " " << landmark.visibility << endl;
       }
     }
     current_frame++;
-    cout << (double) current_frame / num_frames << endl;
+    cout << '\r' << std::setprecision (2) << std::fixed;
+    cout << "Loading: " << (double) current_frame / num_frames * 100 << "%" << std::flush;
     capture.read(frame);
   }
+  cout << endl;
 }
 
 Video::Video(string name) : name(name) {
@@ -66,10 +64,9 @@ Video::Video(string name) : name(name) {
       csv_file >> temp;
     } else {
       for (string body_part : PoseEstimator::body_parts) {
-        double x, y, z, visibility, presence;
-        csv_file >> x >> y >> z >> visibility >> presence;
-        cv::Point3d position(x, y, z);
-        pose.addLandmark(Landmark(body_part, position, visibility, presence));
+        double x, y, z, visibility;
+        csv_file >> x >> y >> z >> visibility;
+        pose.addLandmark(Landmark(body_part, x, y, z, visibility));
       }
     }
     poses.push_back(pose);
