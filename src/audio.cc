@@ -23,34 +23,23 @@ int callback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, 
   if (status) {
     ERROR("Stream underflow detected.");
   }
-
   Audio* audio = (Audio*) userData;
-
-  if (2 * nBufferFrames > audio->buffer.getSize()) {
-    ERROR("Not enough audio data in buffer.");
-  }
-
-  audio->buffer.dequeue((float*) outputBuffer, 2 * nBufferFrames);
-
-  return 0;
+  audio->buffer.dequeue((float*) outputBuffer, std::min(2 * nBufferFrames, (unsigned int) audio->buffer.getSize()));
+  return audio->buffer.getSize() == 0;
 }
 
 void Audio::initAVCodec() {
   string video_filename = name + ".mp4";
-
   pFormatContext = avformat_alloc_context();
   if (avformat_open_input(&pFormatContext, ("videos/" + video_filename).c_str(), nullptr, nullptr) != 0) {
     ERROR("Unable to open file \"" + video_filename + "\".");
   }
-
   if (avformat_find_stream_info(pFormatContext, nullptr) < 0) {
     ERROR("Could not get the stream info.");
   }
-
   const AVCodec* pCodec = nullptr;
   AVCodecParameters* pCodecParameters = nullptr;
   audio_index = -1;
-
   for (int i = 0; i < pFormatContext->nb_streams; i++) {
     AVCodecParameters* pLocalCodecParameters = pFormatContext->streams[i]->codecpar;
     const AVCodec* pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
@@ -61,25 +50,19 @@ void Audio::initAVCodec() {
       audio_index = i;
     }
   }
-
   if (audio_index == -1) {
     ERROR("Could not find the audio codec.");
   }
-
   pCodecContext = avcodec_alloc_context3(pCodec);
   if (avcodec_parameters_to_context(pCodecContext, pCodecParameters) < 0) {
     ERROR("Failed to copy codec params to codec context.");
   }
-
   if (avcodec_open2(pCodecContext, pCodec, nullptr) < 0) {
     ERROR("Failed to open codec.");
   }
-
   pFrame = av_frame_alloc();
   pPacket = av_packet_alloc();
-
   av_log_set_level(AV_LOG_ERROR);
-
   update();
 }
 
@@ -101,31 +84,29 @@ void Audio::play() {
 }
 
 void Audio::update() {
-  while (buffer.getSize() < buffer.getTotalSize() / 2) {
-    readPacket();
-  }
+  while (buffer.getSize() < buffer.getTotalSize() / 2 && readPacket()) {}
 }
 
-void Audio::readPacket() {
+bool Audio::readPacket() {
+  bool found = false;
   while (av_read_frame(pFormatContext, pPacket) >= 0) {
     // If it's the audio stream.
     if (pPacket->stream_index == audio_index) {
+      found = true;
       decodePacket();
       break;
     }
     av_packet_unref(pPacket);
   }
+  return found;
 }
-
 
 void Audio::decodePacket() {
   // Supply raw packet data as input to a decoder
   int response = avcodec_send_packet(pCodecContext, pPacket);
-
   if (response < 0) {
     ERROR("Failed to send packet to the decoder.");
   }
-
   while (response >= 0) {
     // Return decoded output data (into a frame) from a decoder
     response = avcodec_receive_frame(pCodecContext, pFrame);
@@ -134,7 +115,6 @@ void Audio::decodePacket() {
     } else if (response < 0) {
       ERROR("Failed to receive frame from the decoder.");
     }
-
     if (response >= 0) {
       extractFrameData();
     }

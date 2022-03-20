@@ -29,7 +29,7 @@ class Audio {
   int sample_rate;
   void initAVCodec();
   void initRtAudio();
-  void readPacket();
+  bool readPacket();
   void decodePacket();
   void extractFrameData();
 

@@ -23,7 +23,7 @@ void Game::update() {
     ERROR("Empty frame from video.");
   }
   video_pose = video.getPose();
-
+  
   audio.update();
 
   time_point current_time = std::chrono::steady_clock::now();
