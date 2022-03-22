@@ -34,7 +34,7 @@ void VideoLoader::save(string name) {
       }
     }
     current_frame++;
-    cout << '\r' << std::setprecision (2) << std::fixed;
+    cout << '\r' << std::setprecision(2) << std::fixed;
     cout << "Loading: " << (double) current_frame / num_frames * 100 << "%" << std::flush;
     capture.read(frame);
   }
