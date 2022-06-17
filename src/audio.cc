@@ -89,7 +89,7 @@ void Audio::update() {
 bool Audio::readPacket() {
   bool found = false;
   while (av_read_frame(pFormatContext, pPacket) >= 0) {
-    // If it's the audio stream.
+    // if it's the audio stream
     if (pPacket->stream_index == audio_index) {
       found = true;
       decodePacket();
@@ -101,13 +101,13 @@ bool Audio::readPacket() {
 }
 
 void Audio::decodePacket() {
-  // Supply raw packet data as input to a decoder.
+  // packet data -> decoder
   int response = avcodec_send_packet(pCodecContext, pPacket);
   if (response < 0) {
     ERROR("Failed to send packet to the decoder.");
   }
   while (response >= 0) {
-    // Return decoded output data (into a frame) from a decoder.
+    // decoder -> frame data
     response = avcodec_receive_frame(pCodecContext, pFrame);
     if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
       break;
@@ -123,10 +123,10 @@ void Audio::decodePacket() {
 void Audio::extractFrameData() {
   float temp[2 * pFrame->nb_samples];
   for (int i = 0; i < pFrame->nb_samples; i++) {
-    // Left speaker.
-    temp[2 * i] = ((float*)pFrame->data[0])[i];
-    // Right speaker.
-    temp[2 * i + 1] = ((float*)pFrame->data[1])[i];
+    // left speaker
+    temp[2 * i] = ((float*) pFrame->data[0])[i];
+    // right speaker
+    temp[2 * i + 1] = ((float*) pFrame->data[1])[i];
   }
   buffer.enqueue(temp, 2 * pFrame->nb_samples);
 }
