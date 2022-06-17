@@ -5,7 +5,7 @@
 
 class Canvas {
   public:
-  void renderPose(cv::Mat& frame, Pose& pose);
+  void renderPose(cv::Mat& frame, Pose& pose, cv::Scalar color);
   static vector<pair<string, string>> pose_lines;
 };
 

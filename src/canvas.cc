@@ -1,7 +1,7 @@
 #include "canvas.h"
 #include "pose.h"
 
-void Canvas::renderPose(cv::Mat& frame, Pose& pose) {
+void Canvas::renderPose(cv::Mat& frame, Pose& pose, cv::Scalar color) {
   if (!pose.isEmpty()) {
     for (pair<string, string> body_parts : pose_lines) {
       Landmark landmark_1 = pose.getLandmark(body_parts.first);
@@ -11,9 +11,9 @@ void Canvas::renderPose(cv::Mat& frame, Pose& pose) {
         const int frame_width = frame.size[1];
         cv::Point2d pos_1(landmark_1.x * frame_width, landmark_1.y * frame_height);
         cv::Point2d pos_2(landmark_2.x * frame_width, landmark_2.y * frame_height);
-        cv::line(frame, pos_1, pos_2, cv::Scalar(255, 125, 75), 3, cv::LINE_AA);
-        cv::circle(frame, pos_1, 5, cv::Scalar(255, 125, 75), cv::FILLED, cv::LINE_AA);
-        cv::circle(frame, pos_2, 5, cv::Scalar(255, 125, 75), cv::FILLED, cv::LINE_AA);
+        cv::line(frame, pos_1, pos_2, color, 3, cv::LINE_AA);
+        cv::circle(frame, pos_1, 5, color, cv::FILLED, cv::LINE_AA);
+        cv::circle(frame, pos_2, 5, color, cv::FILLED, cv::LINE_AA);
       }
     }
   }

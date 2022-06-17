@@ -12,7 +12,6 @@ Audio::Audio(string name) : name(name), buffer(100000) {
 }
 
 Audio::~Audio() {
-  rta.stopStream();
   avformat_close_input(&pFormatContext);
   av_packet_free(&pPacket);
   av_frame_free(&pFrame);
@@ -102,13 +101,13 @@ bool Audio::readPacket() {
 }
 
 void Audio::decodePacket() {
-  // Supply raw packet data as input to a decoder
+  // Supply raw packet data as input to a decoder.
   int response = avcodec_send_packet(pCodecContext, pPacket);
   if (response < 0) {
     ERROR("Failed to send packet to the decoder.");
   }
   while (response >= 0) {
-    // Return decoded output data (into a frame) from a decoder
+    // Return decoded output data (into a frame) from a decoder.
     response = avcodec_receive_frame(pCodecContext, pFrame);
     if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
       break;

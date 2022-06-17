@@ -22,7 +22,7 @@ void VideoLoader::save(string name) {
   ofstream csv_file ("data/" + csv_filename);
   while(!frame.empty()) {
     Pose pose = pose_estimator.getPose(frame, true);
-    canvas.renderPose(frame, pose);
+    canvas.renderPose(frame, pose, cv::Scalar(255, 125, 75));
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
     if (pose.isEmpty()) {
@@ -91,7 +91,31 @@ cv::Mat Video::getFrame() {
 }
 
 Pose Video::getPose() {
-  return poses[getIndex()];
+  int index = getIndex();
+  if (index == 0 || index == length() - 1 || poses[index - 1].isEmpty() || poses[index].isEmpty() || poses[index + 1].isEmpty()) {
+    return poses[index];
+  }
+  Pose pose;
+  for (string body_part : PoseEstimator::body_parts) {
+    Landmark prev_landmark = poses[index - 1].getLandmark(body_part);
+    Landmark curr_landmark = poses[index].getLandmark(body_part);
+    Landmark next_landmark = poses[index + 1].getLandmark(body_part);
+    double dx_1 = curr_landmark.x - prev_landmark.x;
+    double dy_1 = curr_landmark.y - prev_landmark.y;
+    double dx_2 = next_landmark.x - curr_landmark.x;
+    double dy_2 = next_landmark.y - curr_landmark.y;
+    double dx_3 = next_landmark.x - prev_landmark.x;
+    double dy_3 = next_landmark.y - prev_landmark.y;
+    double dist_1 = dx_1 * dx_1 + dy_1 + dy_1;
+    double dist_2 = dx_2 * dx_2 + dy_2 + dy_2;
+    double dist_3 = dx_3 * dx_3 + dy_3 + dy_3;
+    if (dist_3 < dist_1 || dist_3 < dist_2) {
+      pose.addLandmark(Landmark(body_part, (prev_landmark.x + next_landmark.x) / 2, (prev_landmark.y + next_landmark.y) / 2, 0, 1));
+    } else {
+      pose.addLandmark(Landmark(body_part, curr_landmark.x, curr_landmark.y, 0, 1));
+    }
+  }
+  return pose;
 }
 
 string Video::getName() {

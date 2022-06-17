@@ -11,6 +11,9 @@ void Pose::addLandmark(Landmark landmark) {
 }
 
 Landmark Pose::getLandmark(string body_part) {
+  if (isEmpty()) {
+    ERROR("Trying to get landmark of empty pose.");
+  }
   vector<Landmark>::iterator itr =
     std::find_if(landmarks.begin(), landmarks.end(), [body_part](Landmark landmark) {
       return landmark.body_part == body_part; 
