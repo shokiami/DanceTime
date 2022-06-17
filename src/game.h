@@ -6,8 +6,7 @@
 #include "canvas.h"
 #include "video.h"
 #include "audio.h"
-
-using time_point = std::chrono::time_point<std::chrono::steady_clock>;
+#include "scorer.h"
 
 class Game {
   public:
@@ -26,9 +25,12 @@ class Game {
   Pose video_pose;
   cv::Mat camera_frame;
   cv::Mat video_frame;
-  char keyCode;
-  time_point previous_time;
+  Scorer scorer;
+  double score;
+  time_point prev_score_time;
+  time_point prev_fps_time;
   int fps;
+  char keyCode;
 };
 
 #endif

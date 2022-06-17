@@ -52,10 +52,10 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
     mediapipe::Adopt(input_frame.release()).At(mediapipe::Timestamp(start_time)));
   // if 'wait', then wait until the graph returns a new landmark packet or 0.1 seconds pass by
   if (wait) {
-    size_t current_time = start_time;
-    while (landmark_poller->QueueSize() == 0 && (current_time - start_time) * 1e-6 < 0.1) {
+    size_t curr_time = start_time;
+    while (landmark_poller->QueueSize() == 0 && (curr_time - start_time) * 1e-6 < 0.1) {
       // wait
-      current_time = (double) cv::getTickCount() / cv::getTickFrequency() * 1e6;
+      curr_time = (double) cv::getTickCount() / cv::getTickFrequency() * 1e6;
     }
   }
   // if there is a new landmark packet, then update pose

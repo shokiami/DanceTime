@@ -15,6 +15,7 @@ class Landmark;
 class Canvas;
 class Video;
 class Audio;
+class Scorer;
 
 using std::cout;
 using std::endl;
@@ -24,6 +25,7 @@ using std::vector;
 using std::pair;
 using std::ifstream;
 using std::ofstream;
+using time_point = std::chrono::time_point<std::chrono::steady_clock>;
 
 #define ERROR(message) \
   cerr << endl << "\033[1;31mERROR\033[0m (" << __FILE__ << ":" << __LINE__ << "): " << message << endl; \

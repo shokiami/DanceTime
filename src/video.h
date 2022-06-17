@@ -3,8 +3,6 @@
 
 #include "defs.h"
 
-using time_point = std::chrono::time_point<std::chrono::steady_clock>;
-
 class VideoLoader {
   public:
   void save(string name);
