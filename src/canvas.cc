@@ -5,7 +5,7 @@ void Canvas::renderPose(cv::Mat& frame, Pose& pose, cv::Scalar color) {
   for (pair<string, string> body_parts : pose_lines) {
     Landmark landmark_1 = pose.getLandmark(body_parts.first);
     Landmark landmark_2 = pose.getLandmark(body_parts.second);
-    if (landmark_1.isVisible() && landmark_2.isVisible()) {
+    if (landmark_1.visible() && landmark_2.visible()) {
       const int frame_height = frame.size[0];
       const int frame_width = frame.size[1];
       cv::Point2d pos_1(landmark_1.x * frame_width, landmark_1.y * frame_height);

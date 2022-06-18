@@ -7,8 +7,8 @@ Game::Game() : capture(0), video("blackpink"), audio("blackpink") {
   prev_fps_time = std::chrono::steady_clock::now();
 }
 
-bool Game::isFinished() {
-  return keyCode == 'q' || video.isFinished();
+bool Game::finished() {
+  return keyCode == 'q' || video.finished();
 }
 
 void Game::update() {
@@ -44,17 +44,17 @@ void Game::update() {
 
 void Game::render() {
   // render camera pose
-  if (!camera_pose.isEmpty()) {
+  if (!camera_pose.empty()) {
     canvas.renderPose(camera_frame, camera_pose, cv::Scalar(255, 125, 75));
   }
   int camera_height = camera_frame.size[0];
   int camera_width = camera_frame.size[1];
-  int target_width = video.getWidth() * camera_height / video.getHeight();
+  int target_width = video.width() * camera_height / video.height();
   camera_frame = camera_frame(cv::Range(0, camera_height),
     cv::Range(camera_width / 2 - target_width / 2, camera_width / 2 + target_width / 2));
   // render video pose
   resize(video_frame, video_frame, cv::Size(target_width, camera_height));
-  if (!video_pose.isEmpty()) {
+  if (!video_pose.empty()) {
     canvas.renderPose(video_frame, video_pose, cv::Scalar(255, 0, 255));
   }
   // concatenate and show frames

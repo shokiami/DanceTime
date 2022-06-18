@@ -25,7 +25,7 @@ void VideoLoader::save(string name) {
     canvas.renderPose(frame, pose, cv::Scalar(255, 125, 75));
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
-    if (pose.isEmpty()) {
+    if (pose.empty()) {
       csv_file << "empty" << endl;
     } else {
       for (string body_part : PoseEstimator::body_parts) {
@@ -41,7 +41,7 @@ void VideoLoader::save(string name) {
   cout << endl;
 }
 
-Video::Video(string name) : name(name) {
+Video::Video(string name) {
   string video_filename = name + ".mp4";
   string csv_filename = name + ".csv";
   capture = cv::VideoCapture("videos/" + video_filename);
@@ -77,12 +77,12 @@ void Video::play() {
   start_time = std::chrono::steady_clock::now();
 }
 
-bool Video::isFinished() {
-  return getIndex() >= length();
+bool Video::finished() {
+  return currIndex() >= length();
 }
 
 cv::Mat Video::getFrame() {
-  for (int i = capture.get(cv::CAP_PROP_POS_FRAMES); i < getIndex() - 1; i++) {
+  for (int i = capture.get(cv::CAP_PROP_POS_FRAMES); i < currIndex() - 1; i++) {
     capture.grab();
   }
   cv::Mat frame;
@@ -91,18 +91,14 @@ cv::Mat Video::getFrame() {
 }
 
 Pose Video::getPose() {
-  return poses[getIndex()];
+  return poses[currIndex()];
 }
 
-string Video::getName() {
-  return name;
-}
-
-int Video::getWidth() {
+int Video::width() {
   return capture.get(cv::CAP_PROP_FRAME_WIDTH);
 }
 
-int Video::getHeight() {
+int Video::height() {
   return capture.get(cv::CAP_PROP_FRAME_HEIGHT);
 }
 
@@ -110,19 +106,19 @@ int Video::length() {
   return capture.get(cv::CAP_PROP_FRAME_COUNT);
 }
 
-int Video::getFps() {
+int Video::fps() {
   return capture.get(cv::CAP_PROP_FPS) + 0.5;
 }
 
-double Video::getTime() {
+double Video::currTime() {
   time_point curr_time = std::chrono::steady_clock::now();
   return std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - start_time).count() * 1e-9;
 }
 
-double Video::getTotalTime() {
-  return (double) length() / getFps();
+double Video::totalTime() {
+  return (double) length() / fps();
 }
 
-int Video::getIndex() {
-  return getFps() * getTime();
+int Video::currIndex() {
+  return fps() * currTime();
 }

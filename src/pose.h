@@ -15,7 +15,7 @@ class Pose {
   public:
   void addLandmark(Landmark landmark);
   Landmark getLandmark(string body_part);
-  bool isEmpty();
+  bool empty();
 
   private:
   vector<Landmark> landmarks;
@@ -24,7 +24,7 @@ class Pose {
 class Landmark {
   public:
   Landmark(string body_part, double x, double y, double z, double visibility);
-  bool isVisible();
+  bool visible();
   string body_part;
   double x;
   double y;

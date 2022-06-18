@@ -40,14 +40,14 @@ class Audio {
     ~CyclicQueue();
     void enqueue(T input[], int n);
     void dequeue(T output[], int n);
-    int getSize();
-    int getTotalSize();
+    int size();
+    int maxSize();
 
     private:
     T* arr;
+    int max_size;
     int front;
     int back;
-    int size;
   };
   CyclicQueue<float> buffer;
 };

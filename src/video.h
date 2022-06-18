@@ -12,23 +12,21 @@ class Video {
   public:
   Video(string name);
   void play();
-  bool isFinished();
+  bool finished();
   cv::Mat getFrame();
   Pose getPose();
-  string getName();
-  int getWidth();
-  int getHeight();
+  int width();
+  int height();
   int length();
-  int getFps();
-  double getTime();
-  double getTotalTime();
+  int fps();
+  double currTime();
+  double totalTime();
 
   private:
-  string name;
   cv::VideoCapture capture;
   time_point start_time;
   vector<Pose> poses;
-  int getIndex();
+  int currIndex();
 };
 
 #endif

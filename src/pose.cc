@@ -11,7 +11,7 @@ void Pose::addLandmark(Landmark landmark) {
 }
 
 Landmark Pose::getLandmark(string body_part) {
-  if (isEmpty()) {
+  if (empty()) {
     ERROR("Trying to get landmark of empty pose.");
   }
   vector<Landmark>::iterator itr =
@@ -24,13 +24,13 @@ Landmark Pose::getLandmark(string body_part) {
   return *itr;
 }
 
-bool Pose::isEmpty() {
+bool Pose::empty() {
   return landmarks.empty();
 }
 
 Landmark::Landmark(string body_part, double x, double y, double z, double visibility) :
   body_part(body_part), x(x), y(y), z(z), visibility(visibility) {}
 
-bool Landmark::isVisible() {
+bool Landmark::visible() {
   return visibility > min_visibility;
 }

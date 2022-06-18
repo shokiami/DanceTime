@@ -11,7 +11,7 @@
 class Game {
   public:
   Game();
-  bool isFinished();
+  bool finished();
   void update();
   void render();
 

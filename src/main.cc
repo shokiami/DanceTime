@@ -3,7 +3,7 @@
 int main() {
   cout << "Loading DanceTime." << endl;
   Game game;
-  while (!game.isFinished()) {
+  while (!game.finished()) {
     game.update();
     game.render();
   }

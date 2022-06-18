@@ -23,8 +23,8 @@ int callback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, 
     ERROR("Stream underflow detected.");
   }
   Audio* audio = (Audio*) userData;
-  audio->buffer.dequeue((float*) outputBuffer, std::min(2 * nBufferFrames, (unsigned int) audio->buffer.getSize()));
-  return audio->buffer.getSize() == 0;
+  audio->buffer.dequeue((float*) outputBuffer, std::min(2 * nBufferFrames, (unsigned int) audio->buffer.size()));
+  return audio->buffer.size() == 0;
 }
 
 void Audio::initAVCodec() {
@@ -83,7 +83,7 @@ void Audio::play() {
 }
 
 void Audio::update() {
-  while (buffer.getSize() < buffer.getTotalSize() / 2 && readPacket()) {}
+  while (buffer.size() < buffer.maxSize() / 2 && readPacket()) {}
 }
 
 bool Audio::readPacket() {
@@ -132,8 +132,8 @@ void Audio::extractFrameData() {
 }
 
 template <typename T>
-Audio::CyclicQueue<T>::CyclicQueue(int size) : size(size), front(0), back(0) {
-  arr = new T[size];
+Audio::CyclicQueue<T>::CyclicQueue(int max_size) : max_size(max_size), front(0), back(0) {
+  arr = new T[max_size];
 }
 
 template <typename T>
@@ -144,25 +144,25 @@ Audio::CyclicQueue<T>::~CyclicQueue() {
 template <typename T>
 void Audio::CyclicQueue<T>::enqueue(T input[], int n) {
   for (int i = 0; i < n; i++) {
-    arr[(back + i) % size] = input[i];
+    arr[(back + i) % max_size] = input[i];
   }
-  back = (back + n) % size;
+  back = (back + n) % max_size;
 }
 
 template <typename T>
 void Audio::CyclicQueue<T>::dequeue(T output[], int n) {
   for (int i = 0; i < n; i++) {
-     output[i] = arr[(front + i) % size];
+     output[i] = arr[(front + i) % max_size];
   }
-  front = (front + n) % size;
+  front = (front + n) % max_size;
 }
 
 template <typename T>
-int Audio::CyclicQueue<T>::getSize() {
-  return (back - front + size) % size;
+int Audio::CyclicQueue<T>::size() {
+  return (back - front + max_size) % max_size;
 }
 
 template <typename T>
-int Audio::CyclicQueue<T>::getTotalSize() {
-  return size;
+int Audio::CyclicQueue<T>::maxSize() {
+  return max_size;
 }

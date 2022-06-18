@@ -19,7 +19,7 @@ double Scorer::getScore() {
   vector<Pose> poses2 = video_poses;
   // erase empty poses
   for (int i = poses1.size() - 1; i >= 0; i--) {
-    if (poses1[i].isEmpty() || poses2[i].isEmpty()) {
+    if (poses1[i].empty() || poses2[i].empty()) {
       poses1.erase(poses1.begin() + i);
       poses2.erase(poses2.begin() + i);
     }
