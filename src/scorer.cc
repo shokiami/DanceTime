@@ -41,19 +41,18 @@ double Scorer::getScore() {
       Landmark next1 = poses1[i + 1].getLandmark(body_part);
       Landmark curr2 = poses2[i].getLandmark(body_part);
       Landmark next2 = poses2[i + 1].getLandmark(body_part);
-      if (curr1.visible() && next1.visible() && curr1.visible() && next2.visible()) {
+      if (curr1.visible() && next1.visible() && curr2.visible() && next2.visible()) {
         double dx1 = next1.x - curr1.x;
         double dy1 = next1.y - curr1.y;
+        double d1 = std::sqrt(dx1 * dx1 + dy1 * dy1);
         double dx2 = next2.x - curr2.x;
         double dy2 = next2.y - curr2.y;
-        double dot = dx1 * dx2 + dy1 * dy2;
         double d2 = std::sqrt(dx2 * dx2 + dy2 * dy2);
-        if (d2 > 0.01) {
-          if (dot > 0) {
-            score += d2;
-          }
-          max_score += d2;
+        double dot = dx1 * dx2 + dy1 * dy2;
+        if (dot > 0) {
+          score += dot;
         }
+        max_score += d1 * d2;
       }
     }
   }
