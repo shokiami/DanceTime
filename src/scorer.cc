@@ -17,7 +17,7 @@ double Scorer::getScore() {
   // create copies
   vector<Pose> poses1 = camera_poses;
   vector<Pose> poses2 = video_poses;
-  // erase empty poses
+  // remove empty poses
   for (int i = poses1.size() - 1; i >= 0; i--) {
     if (poses1[i].empty() || poses2[i].empty()) {
       poses1.erase(poses1.begin() + i);
@@ -33,21 +33,31 @@ double Scorer::getScore() {
     poses2[i] = filter(poses2[i - 1], poses2[i], poses2[i + 1]);
   }
   // calculate score
-  double total_similarity = 0;
+  double score = 0;
+  double max_score = 0;
   for (int i = 0; i < poses1.size() - 1; i++) {
     for (string body_part : PoseEstimator::body_parts) {
-      Landmark curr_landmark = poses1[i].getLandmark(body_part);
-      Landmark next_landmark = poses1[i + 1].getLandmark(body_part);
-      double dx1 = next_landmark.x - curr_landmark.x;
-      double dy1 = next_landmark.y - curr_landmark.y;
-      curr_landmark = poses2[i].getLandmark(body_part);
-      next_landmark = poses2[i + 1].getLandmark(body_part);
-      double dx2 = next_landmark.x - curr_landmark.x;
-      double dy2 = next_landmark.y - curr_landmark.y;
-      total_similarity += (dx1 - dx2) * (dx1 - dx2) + (dy1 - dy2) * (dy1 - dy2);
+      Landmark curr1 = poses1[i].getLandmark(body_part);
+      Landmark next1 = poses1[i + 1].getLandmark(body_part);
+      Landmark curr2 = poses2[i].getLandmark(body_part);
+      Landmark next2 = poses2[i + 1].getLandmark(body_part);
+      if (curr1.visible() && next1.visible() && curr1.visible() && next2.visible()) {
+        double dx1 = next1.x - curr1.x;
+        double dy1 = next1.y - curr1.y;
+        double dx2 = next2.x - curr2.x;
+        double dy2 = next2.y - curr2.y;
+        double dot = dx1 * dx2 + dy1 * dy2;
+        double d2 = std::sqrt(dx2 * dx2 + dy2 * dy2);
+        if (d2 > 0.01) {
+          if (dot > 0) {
+            score += d2;
+          }
+          max_score += d2;
+        }
+      }
     }
   }
-  return total_similarity / (2 * PoseEstimator::body_parts.size() * poses1.size());
+  return score / max_score;
 }
 
 Pose Scorer::filter(Pose prev, Pose curr, Pose next) {

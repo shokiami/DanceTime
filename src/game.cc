@@ -32,9 +32,11 @@ void Game::update() {
   time_point curr_time = std::chrono::steady_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count() * 1e-9;
   if (elapsed_time > 1) {
+    prev_score_time = curr_time;
     score = scorer.getScore();
     scorer.reset();
-    prev_score_time = curr_time;
+    // print fps and score
+    cout << "FPS: " << fps << " Score: " << score << endl;
   }
   // update fps
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count() * 1e-9;
@@ -62,6 +64,4 @@ void Game::render() {
   cv::hconcat(video_frame, camera_frame, frame);
   cv::imshow("DanceTime", frame);
   keyCode = cv::waitKey(1) & 0xFF;
-  // print fps and score
-  cout << '\r' << "FPS: " << fps << " Score: " << score << std::flush;
 }
