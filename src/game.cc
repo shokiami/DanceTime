@@ -1,6 +1,6 @@
 #include "game.h"
 
-Game::Game() : capture(0), video("blackpink"), audio("blackpink"), test_file("test/right_hand.csv") {
+Game::Game() : capture(0), video("blackpink"), audio("blackpink"), test_file("test/right_hand_comp.csv") {
   audio.play();
   video.play();
   prev_score_time = std::chrono::steady_clock::now();

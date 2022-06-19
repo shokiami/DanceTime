@@ -1,7 +1,7 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 
-df = pd.read_csv("right_hand.csv")
+df = pd.read_csv("right_hand_comp.csv")
 frame = range(len(df))
 player_x = df["player_x"]
 player_y = df["player_y"]
