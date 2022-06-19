@@ -1,22 +1,22 @@
 #include "scorer.h"
 
 void Scorer::reset() {
-  camera_poses.clear();
-  video_poses.clear();
+  player_poses.clear();
+  avatar_poses.clear();
 }
 
-void Scorer::addPoses(Pose camera_pose, Pose video_pose) {
-  camera_poses.push_back(camera_pose);
-  video_poses.push_back(video_pose);
+void Scorer::addPoses(Pose player_pose, Pose avatar_pose) {
+  player_poses.push_back(player_pose);
+  avatar_poses.push_back(avatar_pose);
 }
 
 double Scorer::getScore() {
-  if (camera_poses.size() != video_poses.size()) {
+  if (player_poses.size() != avatar_poses.size()) {
     ERROR("Number of poses does not match.");
   }
   // create copies
-  vector<Pose> poses1 = camera_poses;
-  vector<Pose> poses2 = video_poses;
+  vector<Pose> poses1 = player_poses;
+  vector<Pose> poses2 = avatar_poses;
   // remove empty poses
   for (int i = poses1.size() - 1; i >= 0; i--) {
     if (poses1[i].empty() || poses2[i].empty()) {

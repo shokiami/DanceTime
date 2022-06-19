@@ -1,11 +1,10 @@
 #include "video.h"
 #include "pose.h"
 #include "canvas.h"
-#include <fstream>
 
 void VideoLoader::save(string name) {
   string video_filename = name + ".mp4";
-  string csv_filename = name + ".csv";
+  string pose_filename = name + ".txt";
   cv::VideoCapture capture("videos/" + video_filename);
   if (!capture.isOpened()) {
     ERROR("Unable to open file \"" + video_filename + "\".");
@@ -19,18 +18,18 @@ void VideoLoader::save(string name) {
   if (frame.empty()) {
     ERROR("Empty frame from \"" + video_filename + "\".");
   }
-  ofstream csv_file("data/" + csv_filename);
+  ofstream pose_file("data/" + pose_filename);
   while(!frame.empty()) {
     Pose pose = pose_estimator.getPose(frame, true);
     canvas.renderPose(frame, pose, cv::Scalar(255, 125, 75));
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
     if (pose.empty()) {
-      csv_file << "empty" << endl;
+      pose_file << "empty" << endl;
     } else {
       for (string body_part : PoseEstimator::body_parts) {
         Landmark landmark = pose.getLandmark(body_part);
-        csv_file << landmark.x << " " << landmark.y << " " << landmark.z << " " << landmark.visibility << endl;
+        pose_file << landmark.x << " " << landmark.y << " " << landmark.z << " " << landmark.visibility << endl;
       }
     }
     curr_frame++;
@@ -43,29 +42,29 @@ void VideoLoader::save(string name) {
 
 Video::Video(string name) {
   string video_filename = name + ".mp4";
-  string csv_filename = name + ".csv";
+  string pose_filename = name + ".txt";
   capture = cv::VideoCapture("videos/" + video_filename);
   if (!capture.isOpened()) {
     ERROR("Unable to open file \"" + video_filename + "\".");
   }
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   poses.reserve(num_frames);
-  ifstream csv_file("data/" + csv_filename);
-  if (!csv_file.good()) {
-    ERROR("Unable to open file \"" + csv_filename + "\".");
+  ifstream pose_file("data/" + pose_filename);
+  if (!pose_file.good()) {
+    ERROR("Unable to open file \"" + pose_filename + "\".");
   }
   for (int i = 0; i < num_frames; i++) {
     Pose pose;
-    while (!csv_file.eof() && std::isspace(csv_file.peek())) {
-      csv_file.get();
+    while (!pose_file.eof() && std::isspace(pose_file.peek())) {
+      pose_file.get();
     }
-    if (csv_file.peek() == 'e') {
+    if (pose_file.peek() == 'e') {
       string temp;
-      csv_file >> temp;
+      pose_file >> temp;
     } else {
       for (string body_part : PoseEstimator::body_parts) {
         double x, y, z, visibility;
-        csv_file >> x >> y >> z >> visibility;
+        pose_file >> x >> y >> z >> visibility;
         pose.addLandmark(Landmark(body_part, x, y, z, visibility));
       }
     }

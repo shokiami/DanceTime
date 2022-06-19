@@ -7,12 +7,12 @@
 class Scorer {
   public:
   void reset();
-  void addPoses(Pose camera_pose, Pose video_pose);
+  void addPoses(Pose player_pose, Pose avatar_pose);
   double getScore();
 
   private:
-  vector<Pose> camera_poses;
-  vector<Pose> video_poses;
+  vector<Pose> player_poses;
+  vector<Pose> avatar_poses;
   Pose filter(Pose prev, Pose curr, Pose next);
 };
 

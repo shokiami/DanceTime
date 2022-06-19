@@ -21,8 +21,8 @@ class Game {
   Canvas canvas;
   Video video;
   Audio audio;
-  Pose camera_pose;
-  Pose video_pose;
+  Pose player_pose;
+  Pose avatar_pose;
   cv::Mat camera_frame;
   cv::Mat video_frame;
   Scorer scorer;
@@ -31,6 +31,7 @@ class Game {
   time_point prev_fps_time;
   int fps;
   char keyCode;
+  ofstream test_file;
 };
 
 #endif
