@@ -19,7 +19,7 @@ void VideoLoader::save(string name) {
   if (frame.empty()) {
     ERROR("Empty frame from \"" + video_filename + "\".");
   }
-  ofstream csv_file ("data/" + csv_filename);
+  ofstream csv_file("data/" + csv_filename);
   while(!frame.empty()) {
     Pose pose = pose_estimator.getPose(frame, true);
     canvas.renderPose(frame, pose, cv::Scalar(255, 125, 75));
