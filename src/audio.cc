@@ -12,55 +12,55 @@ Audio::Audio(string name) : name(name), buffer(100000) {
 }
 
 Audio::~Audio() {
-  avformat_close_input(&pFormatContext);
-  av_packet_free(&pPacket);
-  av_frame_free(&pFrame);
-  avcodec_free_context(&pCodecContext);
+  avformat_close_input(&format_ctx);
+  av_packet_free(&packet);
+  av_frame_free(&frame);
+  avcodec_free_context(&codec_ctx);
 }
 
-int callback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void* userData) {
+int callback(void* out_buf, void* in_buf, unsigned int num_frames, double stream_time, RtAudioStreamStatus status, void* user_data) {
   if (status) {
     ERROR("stream underflow detected");
   }
-  Audio* audio = (Audio*) userData;
-  audio->buffer.dequeue((float*) outputBuffer, std::min(2 * nBufferFrames, (unsigned int) audio->buffer.size()));
+  Audio* audio = (Audio*) user_data;
+  audio->buffer.dequeue((float*) out_buf, std::min(2 * num_frames, (unsigned int) audio->buffer.size()));
   return audio->buffer.size() == 0;
 }
 
 void Audio::initAVCodec() {
   string video_filename = name + ".mp4";
-  pFormatContext = avformat_alloc_context();
-  if (avformat_open_input(&pFormatContext, ("videos/" + video_filename).c_str(), nullptr, nullptr) != 0) {
+  format_ctx = avformat_alloc_context();
+  if (avformat_open_input(&format_ctx, ("videos/" + video_filename).c_str(), nullptr, nullptr) != 0) {
     ERROR("unable to open file \"" + video_filename + "\"");
   }
-  if (avformat_find_stream_info(pFormatContext, nullptr) < 0) {
+  if (avformat_find_stream_info(format_ctx, nullptr) < 0) {
     ERROR("could not get the stream info");
   }
-  const AVCodec* pCodec = nullptr;
-  AVCodecParameters* pCodecParameters = nullptr;
+  const AVCodec* codec = nullptr;
+  AVCodecParameters* codec_params = nullptr;
   audio_index = -1;
-  for (int i = 0; i < pFormatContext->nb_streams; i++) {
-    AVCodecParameters* pLocalCodecParameters = pFormatContext->streams[i]->codecpar;
-    const AVCodec* pLocalCodec = avcodec_find_decoder(pLocalCodecParameters->codec_id);
-    if (pLocalCodecParameters->codec_type == AVMEDIA_TYPE_AUDIO) {
-      pCodec = pLocalCodec;
-      pCodecParameters = pLocalCodecParameters;
-      sample_rate = pCodecParameters->sample_rate;
+  for (int i = 0; i < format_ctx->nb_streams; i++) {
+    AVCodecParameters* local_codec_params = format_ctx->streams[i]->codecpar;
+    const AVCodec* pLocalCodec = avcodec_find_decoder(local_codec_params->codec_id);
+    if (local_codec_params->codec_type == AVMEDIA_TYPE_AUDIO) {
+      codec = pLocalCodec;
+      codec_params = local_codec_params;
+      sample_rate = codec_params->sample_rate;
       audio_index = i;
     }
   }
   if (audio_index == -1) {
     ERROR("could not find audio codec");
   }
-  pCodecContext = avcodec_alloc_context3(pCodec);
-  if (avcodec_parameters_to_context(pCodecContext, pCodecParameters) < 0) {
+  codec_ctx = avcodec_alloc_context3(codec);
+  if (avcodec_parameters_to_context(codec_ctx, codec_params) < 0) {
     ERROR("failed to copy codec params to codec context");
   }
-  if (avcodec_open2(pCodecContext, pCodec, nullptr) < 0) {
+  if (avcodec_open2(codec_ctx, codec, nullptr) < 0) {
     ERROR("failed to open codec");
   }
-  pFrame = av_frame_alloc();
-  pPacket = av_packet_alloc();
+  frame = av_frame_alloc();
+  packet = av_packet_alloc();
   av_log_set_level(AV_LOG_ERROR);
   update();
 }
@@ -69,13 +69,13 @@ void Audio::initRtAudio() {
   if (rta.getDeviceCount() < 1) {
     ERROR("no audio devices found");
   }
-  RtAudio::StreamParameters parameters;
-  parameters.deviceId = rta.getDefaultOutputDevice();
-  parameters.nChannels = 2;
-  parameters.firstChannel = 0;
-  unsigned int sampleRate = 44100;
-  unsigned int bufferFrames = 256;
-  rta.openStream(&parameters, nullptr, RTAUDIO_FLOAT32, sample_rate, &bufferFrames, &callback, (void *) this);
+  RtAudio::StreamParameters stream_params;
+  stream_params.deviceId = rta.getDefaultOutputDevice();
+  stream_params.nChannels = 2;
+  stream_params.firstChannel = 0;
+  unsigned int sample_rate = 44100;
+  unsigned int num_frames = 256;
+  rta.openStream(&stream_params, nullptr, RTAUDIO_FLOAT32, sample_rate, &num_frames, &callback, (void *) this);
 }
 
 void Audio::play() {
@@ -88,27 +88,27 @@ void Audio::update() {
 
 bool Audio::readPacket() {
   bool found = false;
-  while (av_read_frame(pFormatContext, pPacket) >= 0) {
+  while (av_read_frame(format_ctx, packet) >= 0) {
     // if it's the audio stream
-    if (pPacket->stream_index == audio_index) {
+    if (packet->stream_index == audio_index) {
       found = true;
       decodePacket();
       break;
     }
-    av_packet_unref(pPacket);
+    av_packet_unref(packet);
   }
   return found;
 }
 
 void Audio::decodePacket() {
   // packet data -> decoder
-  int response = avcodec_send_packet(pCodecContext, pPacket);
+  int response = avcodec_send_packet(codec_ctx, packet);
   if (response < 0) {
     ERROR("failed to send packet to the decoder");
   }
   while (response >= 0) {
     // decoder -> frame data
-    response = avcodec_receive_frame(pCodecContext, pFrame);
+    response = avcodec_receive_frame(codec_ctx, frame);
     if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
       break;
     } else if (response < 0) {
@@ -121,14 +121,14 @@ void Audio::decodePacket() {
 }
 
 void Audio::extractFrameData() {
-  float temp[2 * pFrame->nb_samples];
-  for (int i = 0; i < pFrame->nb_samples; i++) {
+  float temp[2 * frame->nb_samples];
+  for (int i = 0; i < frame->nb_samples; i++) {
     // left speaker
-    temp[2 * i] = ((float*) pFrame->data[0])[i];
+    temp[2 * i] = ((float*) frame->data[0])[i];
     // right speaker
-    temp[2 * i + 1] = ((float*) pFrame->data[1])[i];
+    temp[2 * i + 1] = ((float*) frame->data[1])[i];
   }
-  buffer.enqueue(temp, 2 * pFrame->nb_samples);
+  buffer.enqueue(temp, 2 * frame->nb_samples);
 }
 
 template <typename T>

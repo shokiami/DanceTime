@@ -14,17 +14,15 @@ class Audio {
   ~Audio();
   void play();
   void update();
-  friend int callback(void* outputBuffer, void* inputBuffer,
-                      unsigned int nBufferFrames, double streamTime,
-                      RtAudioStreamStatus status, void* userData);
+  friend int callback(void* out_buf, void* in_buf, unsigned int num_frames, double stream_time, RtAudioStreamStatus status, void* user_data);
 
   private:
   string name;
   RtAudio rta;
-  AVFormatContext *pFormatContext;
-  AVCodecContext *pCodecContext;
-  AVFrame* pFrame;
-  AVPacket* pPacket;
+  AVFormatContext* format_ctx;
+  AVCodecContext* codec_ctx;
+  AVFrame* frame;
+  AVPacket* packet;
   int audio_index;
   int sample_rate;
   void initAVCodec();
