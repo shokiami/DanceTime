@@ -21,23 +21,20 @@ void VideoLoader::save(string name) {
   ofstream pose_file("data/" + pose_filename);
   while(!frame.empty()) {
     Pose pose = pose_estimator.getPose(frame, true);
-    canvas.renderPose(frame, pose, cv::Scalar(255, 125, 75));
-    cv::imshow("DanceTime", frame);
-    cv::waitKey(1);
     if (pose.empty()) {
       pose_file << "empty" << endl;
     } else {
-      for (string body_part : PoseEstimator::body_parts) {
-        Landmark landmark = pose.getLandmark(body_part);
-        pose_file << landmark.x << " " << landmark.y << " " << landmark.z << " " << landmark.visibility << endl;
+      for (Landmark landmark : pose.landmarks) {
+        pose_file << landmark.x << " " << landmark.y << " " << landmark.visibility << endl;
       }
+      canvas.renderPose(frame, pose, 255, 0, 255);
     }
+    cv::imshow("DanceTime", frame);
+    cv::waitKey(1);
     curr_frame++;
-    cout << '\r' << std::setprecision(2) << std::fixed;
-    cout << "Loading: " << (double) curr_frame / num_frames * 100 << "%" << std::flush;
+    cout << "Loading: " << std::setprecision(2) << std::fixed << (double) curr_frame / num_frames * 100 << "%" << endl;
     capture.read(frame);
   }
-  cout << endl;
 }
 
 Video::Video(string name) {
@@ -63,9 +60,9 @@ Video::Video(string name) {
       pose_file >> temp;
     } else {
       for (string body_part : PoseEstimator::body_parts) {
-        double x, y, z, visibility;
-        pose_file >> x >> y >> z >> visibility;
-        pose.addLandmark(Landmark(body_part, x, y, z, visibility));
+        double x, y, visibility;
+        pose_file >> x >> y >> visibility;
+        pose.addLandmark(Landmark(body_part, x, y, visibility));
       }
     }
     poses.push_back(pose);
@@ -110,7 +107,7 @@ int Video::fps() {
 }
 
 double Video::currTime() {
-  time_point curr_time = std::chrono::steady_clock::now();
+  TimePoint curr_time = std::chrono::steady_clock::now();
   return std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - start_time).count() * 1e-9;
 }
 

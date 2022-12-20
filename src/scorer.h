@@ -13,7 +13,10 @@ class Scorer {
   private:
   vector<Pose> player_poses;
   vector<Pose> avatar_poses;
-  Pose filter(Pose prev, Pose curr, Pose next);
+  void denoise(vector<Pose>& poses);
+  double mse(Pose pose1, Pose pose2);
+  static constexpr double offset_cost = 0.01;
+  static constexpr double sensitivity = 0.001;
 };
 
 #endif

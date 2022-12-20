@@ -38,14 +38,13 @@ PoseEstimator::~PoseEstimator() {
 
 Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
   // convert the frame from BGR to RGB
-  cv::Mat frame;
-  cv::cvtColor(raw_frame, frame, cv::COLOR_BGR2RGB);
+  cv::Mat rgb_frame;
+  cv::cvtColor(raw_frame, rgb_frame, cv::COLOR_BGR2RGB);
   // wrap the frame into an ImageFrame
   std::unique_ptr<mediapipe::ImageFrame> input_frame = absl::make_unique<mediapipe::ImageFrame>(
-    mediapipe::ImageFormat::SRGB, frame.cols, frame.rows,
+    mediapipe::ImageFormat::SRGB, raw_frame.cols, raw_frame.rows,
     mediapipe::ImageFrame::kDefaultAlignmentBoundary);
-  cv::Mat input_frame_mat = mediapipe::formats::MatView(input_frame.get());
-  frame.copyTo(input_frame_mat);
+  rgb_frame.copyTo(mediapipe::formats::MatView(input_frame.get()));
   // send the image packet into the graph
   size_t start_time = (double) cv::getTickCount() / cv::getTickFrequency() * 1e6;
   graph->AddPacketToInputStream(kInputStream, 
@@ -69,7 +68,7 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
     pose = Pose();
     for (int i = 0; i < body_parts.size(); i++) {
       const mediapipe::NormalizedLandmark& landmark = landmark_list.landmark(i);
-      pose.addLandmark(Landmark(body_parts[i], landmark.x(), landmark.y(), landmark.z(), landmark.visibility()));
+      pose.addLandmark(Landmark(body_parts[i], landmark.x() * raw_frame.cols, landmark.y() * raw_frame.rows, landmark.visibility()));
     }
   } else {
     if (wait || out_of_frame) {

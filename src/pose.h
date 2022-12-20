@@ -16,19 +16,18 @@ class Pose {
   void addLandmark(Landmark landmark);
   Landmark getLandmark(string body_part);
   bool empty();
-
-  private:
+  void standardize();
+  void transform(double scalar, double dx, double dy);
   vector<Landmark> landmarks;
 };
 
 class Landmark {
   public:
-  Landmark(string body_part, double x, double y, double z, double visibility);
+  Landmark(string body_part, double x, double y, double visibility);
   bool visible();
   string body_part;
   double x;
   double y;
-  double z;
   double visibility;
 
   private:

@@ -24,7 +24,7 @@ class Video {
 
   private:
   cv::VideoCapture capture;
-  time_point start_time;
+  TimePoint start_time;
   vector<Pose> poses;
   int currIndex();
 };

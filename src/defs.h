@@ -25,10 +25,10 @@ using std::vector;
 using std::pair;
 using std::ifstream;
 using std::ofstream;
-using time_point = std::chrono::time_point<std::chrono::steady_clock>;
+using TimePoint = std::chrono::time_point<std::chrono::steady_clock>;
 
 #define ERROR(message) \
-  cerr << endl << "\033[1;31mERROR\033[0m (" << __FILE__ << ":" << __LINE__ << "): " << message << endl; \
+  cerr << "\033[1;31mERROR\033[0m (" << __FILE__ << ":" << __LINE__ << "): " << message << endl; \
   exit(EXIT_FAILURE);
 
 #endif

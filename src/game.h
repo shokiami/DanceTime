@@ -27,11 +27,10 @@ class Game {
   cv::Mat video_frame;
   Scorer scorer;
   double score;
-  time_point prev_score_time;
-  time_point prev_fps_time;
+  TimePoint prev_score_time;
+  TimePoint prev_fps_time;
   int fps;
-  char keyCode;
-  ofstream test_file;
+  char key_code;
 };
 
 #endif
