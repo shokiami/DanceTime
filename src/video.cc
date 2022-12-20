@@ -7,7 +7,7 @@ void VideoLoader::save(string name) {
   string pose_filename = name + ".txt";
   cv::VideoCapture capture("videos/" + video_filename);
   if (!capture.isOpened()) {
-    ERROR("Unable to open file \"" + video_filename + "\".");
+    ERROR("unable to open file \"" + video_filename + "\"");
   }
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   int curr_frame = 0;
@@ -16,7 +16,7 @@ void VideoLoader::save(string name) {
   Canvas canvas;
   capture.read(frame);
   if (frame.empty()) {
-    ERROR("Empty frame from \"" + video_filename + "\".");
+    ERROR("empty frame from \"" + video_filename + "\"");
   }
   ofstream pose_file("data/" + pose_filename);
   while(!frame.empty()) {
@@ -32,7 +32,7 @@ void VideoLoader::save(string name) {
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
     curr_frame++;
-    cout << "Loading: " << std::setprecision(2) << std::fixed << (double) curr_frame / num_frames * 100 << "%" << endl;
+    cout << "loading: " << std::setprecision(2) << std::fixed << (double) curr_frame / num_frames * 100 << "%" << endl;
     capture.read(frame);
   }
 }
@@ -42,13 +42,13 @@ Video::Video(string name) {
   string pose_filename = name + ".txt";
   capture = cv::VideoCapture("videos/" + video_filename);
   if (!capture.isOpened()) {
-    ERROR("Unable to open file \"" + video_filename + "\".");
+    ERROR("unable to open file \"" + video_filename + "\"");
   }
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   poses.reserve(num_frames);
   ifstream pose_file("data/" + pose_filename);
   if (!pose_file.good()) {
-    ERROR("Unable to open file \"" + pose_filename + "\".");
+    ERROR("unable to open file \"" + pose_filename + "\"");
   }
   for (int i = 0; i < num_frames; i++) {
     Pose pose;

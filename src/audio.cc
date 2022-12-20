@@ -20,7 +20,7 @@ Audio::~Audio() {
 
 int callback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void* userData) {
   if (status) {
-    ERROR("Stream underflow detected.");
+    ERROR("stream underflow detected");
   }
   Audio* audio = (Audio*) userData;
   audio->buffer.dequeue((float*) outputBuffer, std::min(2 * nBufferFrames, (unsigned int) audio->buffer.size()));
@@ -31,10 +31,10 @@ void Audio::initAVCodec() {
   string video_filename = name + ".mp4";
   pFormatContext = avformat_alloc_context();
   if (avformat_open_input(&pFormatContext, ("videos/" + video_filename).c_str(), nullptr, nullptr) != 0) {
-    ERROR("Unable to open file \"" + video_filename + "\".");
+    ERROR("unable to open file \"" + video_filename + "\"");
   }
   if (avformat_find_stream_info(pFormatContext, nullptr) < 0) {
-    ERROR("Could not get the stream info.");
+    ERROR("could not get the stream info");
   }
   const AVCodec* pCodec = nullptr;
   AVCodecParameters* pCodecParameters = nullptr;
@@ -50,14 +50,14 @@ void Audio::initAVCodec() {
     }
   }
   if (audio_index == -1) {
-    ERROR("Could not find the audio codec.");
+    ERROR("could not find audio codec");
   }
   pCodecContext = avcodec_alloc_context3(pCodec);
   if (avcodec_parameters_to_context(pCodecContext, pCodecParameters) < 0) {
-    ERROR("Failed to copy codec params to codec context.");
+    ERROR("failed to copy codec params to codec context");
   }
   if (avcodec_open2(pCodecContext, pCodec, nullptr) < 0) {
-    ERROR("Failed to open codec.");
+    ERROR("failed to open codec");
   }
   pFrame = av_frame_alloc();
   pPacket = av_packet_alloc();
@@ -67,7 +67,7 @@ void Audio::initAVCodec() {
 
 void Audio::initRtAudio() {
   if (rta.getDeviceCount() < 1) {
-    ERROR("No audio devices found.");
+    ERROR("no audio devices found");
   }
   RtAudio::StreamParameters parameters;
   parameters.deviceId = rta.getDefaultOutputDevice();
@@ -104,7 +104,7 @@ void Audio::decodePacket() {
   // packet data -> decoder
   int response = avcodec_send_packet(pCodecContext, pPacket);
   if (response < 0) {
-    ERROR("Failed to send packet to the decoder.");
+    ERROR("failed to send packet to the decoder");
   }
   while (response >= 0) {
     // decoder -> frame data
@@ -112,7 +112,7 @@ void Audio::decodePacket() {
     if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
       break;
     } else if (response < 0) {
-      ERROR("Failed to receive frame from the decoder.");
+      ERROR("failed to receive frame from the decoder");
     }
     if (response >= 0) {
       extractFrameData();

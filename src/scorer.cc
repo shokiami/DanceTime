@@ -12,7 +12,7 @@ void Scorer::addPoses(Pose player_pose, Pose avatar_pose) {
 
 double Scorer::getScore() {
   if (player_poses.size() != avatar_poses.size()) {
-    ERROR("Number of poses does not match.");
+    ERROR("number of poses does not match");
   }
   // remove empty poses
   for (int i = player_poses.size() - 1; i >= 0; i--) {

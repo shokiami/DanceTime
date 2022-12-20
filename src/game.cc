@@ -15,14 +15,14 @@ void Game::update() {
   // get player's pose
   capture.read(camera_frame);
   if (camera_frame.empty()) {
-    ERROR("Empty frame from camera.");
+    ERROR("empty frame from camera");
   }
   cv::flip(camera_frame, camera_frame, 1);
   player_pose = pose_estimator.getPose(camera_frame);
   // get avatar's pose
   video_frame = video.getFrame();
   if (video_frame.empty()) {
-    ERROR("Empty frame from video.");
+    ERROR("empty frame from video");
   }
   avatar_pose = video.getPose();
   // update audio
@@ -36,7 +36,7 @@ void Game::update() {
     score = scorer.getScore();
     scorer.reset();
     // print fps and score
-    cout << "FPS: " << fps << " Score: " << score << endl;
+    cout << "fps: " << fps << ", score: " << score << endl;
   }
   // update fps
   elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count() * 1e-9;
