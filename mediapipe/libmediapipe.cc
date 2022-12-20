@@ -4,12 +4,11 @@
 #include "mediapipe/framework/port/opencv_video_inc.h"
 #include "mediapipe/framework/port/parse_text_proto.h"
 #include "mediapipe/framework/formats/landmark.pb.h"
-
 #include "pose.h"
 
 constexpr char kInputStream[] = "input_video";
 constexpr char kOutputStream[] = "pose_landmarks";
-string calculator_graph_config_file = "graphs/pose_tracking.pbtxt";
+string calculator_graph_config_file = "mediapipe/pose_tracking.pbtxt";
 mediapipe::CalculatorGraph* graph;
 mediapipe::OutputStreamPoller* landmark_poller;
 Pose pose;

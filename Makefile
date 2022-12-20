@@ -9,7 +9,7 @@ endif
 
 SOURCES := $(wildcard src/*.cc)
 HEADERS := $(wildcard src/*.h)
-OBJECTS := $(patsubst src/%.cc,obj/%.o, $(SOURCES))
+OBJECTS := $(patsubst src/%.cc,obj/%.o,$(SOURCES))
 
 main: $(OBJECTS) mediapipe/libmediapipe.so
 	$(CXX) $(FLAGS) $(OPT) $(OBJECTS) -o main $(LDFLAGS) $(LIBS)

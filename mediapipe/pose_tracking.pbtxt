@@ -1,12 +1,9 @@
-# MediaPipe graph that performs pose tracking with TensorFlow Lite on CPU.
+# MediaPipe graph that performs pose estimation with TensorFlow Lite on CPU
 
-# CPU buffer (ImageFrame).
-input_stream: "input_video"
+input_stream: "input_video"  # ImageFrame
+output_stream: "pose_landmarks"  # NormalizedLandmarkList
 
-# Pose landmarks (NormalizedLandmarkList).
-output_stream: "pose_landmarks"
-
-# Subgraph that limits the images flowing downstream to prevent back-ups.
+# subgraph that limits the images flowing downstream to prevent back-ups
 node {
   calculator: "FlowLimiterCalculator"
   input_stream: "input_video"
@@ -18,7 +15,7 @@ node {
   output_stream: "throttled_input_video"
 }
 
-# Subgraph that detects poses and corresponding landmarks.
+# subgraph that detects poses and corresponding landmarks
 node {
   calculator: "PoseLandmarkCpu"
   input_stream: "IMAGE:throttled_input_video"

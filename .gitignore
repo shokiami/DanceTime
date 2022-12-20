@@ -1,7 +1,5 @@
+.DS_Store
 main
 *.o
-*.txt
 *.mp4
-*.csv
-*.png
-.DS_Store
+*.txt
