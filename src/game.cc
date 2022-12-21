@@ -64,12 +64,12 @@ void Game::render() {
   cv::Mat test_frame = cv::Mat(target_height, target_width, camera_frame.type(), cv::Scalar(255, 255, 255));
   if (!player_pose.empty()) {
     player_pose.standardize();
-    player_pose.transform(160, 0.5 * target_width, 0.2 * target_height);
+    player_pose.transform(160, 0.5 * target_width, 0.4 * target_height);
     canvas.renderPose(test_frame, player_pose, 75, 125, 255);
   }
   if (!avatar_pose.empty()) {
     avatar_pose.standardize();
-    avatar_pose.transform(160, 0.5 * target_width, 0.2 * target_height);
+    avatar_pose.transform(160, 0.5 * target_width, 0.4 * target_height);
     canvas.renderPose(test_frame, avatar_pose, 255, 0, 255);
   }
   // concatenate and show frames
