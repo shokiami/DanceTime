@@ -14,7 +14,7 @@ class Audio {
   ~Audio();
   void play();
   void update();
-  friend int callback(void* out_buf, void* in_buf, unsigned int num_frames, double stream_time, RtAudioStreamStatus status, void* user_data);
+  friend int callback(void* output_buffer, void* input_buffer, unsigned int num_frames, double stream_time, RtAudioStreamStatus status, void* user_data);
 
   private:
   string name;

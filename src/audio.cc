@@ -1,5 +1,4 @@
 #include "audio.h"
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -18,12 +17,12 @@ Audio::~Audio() {
   avcodec_free_context(&codec_ctx);
 }
 
-int callback(void* out_buf, void* in_buf, unsigned int num_frames, double stream_time, RtAudioStreamStatus status, void* user_data) {
+int callback(void* output_buffer, void* input_buffer, unsigned int num_frames, double stream_time, RtAudioStreamStatus status, void* user_data) {
   if (status) {
     ERROR("stream underflow detected");
   }
   Audio* audio = (Audio*) user_data;
-  audio->buffer.dequeue((float*) out_buf, std::min(2 * num_frames, (unsigned int) audio->buffer.size()));
+  audio->buffer.dequeue((float*) output_buffer, std::min(2 * num_frames, (unsigned int) audio->buffer.size()));
   return audio->buffer.size() == 0;
 }
 
@@ -40,11 +39,11 @@ void Audio::initAVCodec() {
   AVCodecParameters* codec_params = nullptr;
   audio_index = -1;
   for (int i = 0; i < format_ctx->nb_streams; i++) {
-    AVCodecParameters* local_codec_params = format_ctx->streams[i]->codecpar;
-    const AVCodec* pLocalCodec = avcodec_find_decoder(local_codec_params->codec_id);
-    if (local_codec_params->codec_type == AVMEDIA_TYPE_AUDIO) {
-      codec = pLocalCodec;
-      codec_params = local_codec_params;
+    AVCodecParameters* curr_codec_params = format_ctx->streams[i]->codecpar;
+    const AVCodec* curr_codec = avcodec_find_decoder(curr_codec_params->codec_id);
+    if (curr_codec_params->codec_type == AVMEDIA_TYPE_AUDIO) {
+      codec = curr_codec;
+      codec_params = curr_codec_params;
       sample_rate = codec_params->sample_rate;
       audio_index = i;
     }
@@ -73,7 +72,6 @@ void Audio::initRtAudio() {
   stream_params.deviceId = rta.getDefaultOutputDevice();
   stream_params.nChannels = 2;
   stream_params.firstChannel = 0;
-  unsigned int sample_rate = 44100;
   unsigned int num_frames = 256;
   rta.openStream(&stream_params, nullptr, RTAUDIO_FLOAT32, sample_rate, &num_frames, &callback, (void *) this);
 }
@@ -83,21 +81,22 @@ void Audio::play() {
 }
 
 void Audio::update() {
-  while (buffer.size() < buffer.maxSize() / 2 && readPacket()) {}
+  bool packet_found = readPacket();
+  while (packet_found && (buffer.size() < buffer.maxSize() / 2)) {
+    packet_found = readPacket();
+  }
 }
 
 bool Audio::readPacket() {
-  bool found = false;
   while (av_read_frame(format_ctx, packet) >= 0) {
     // if it's the audio stream
     if (packet->stream_index == audio_index) {
-      found = true;
       decodePacket();
-      break;
+      return true;
     }
     av_packet_unref(packet);
   }
-  return found;
+  return false;
 }
 
 void Audio::decodePacket() {
