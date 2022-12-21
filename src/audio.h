@@ -30,6 +30,7 @@ class Audio {
   bool readPacket();
   void decodePacket();
   void extractFrameData();
+  static constexpr double volume = 0.1;
 
   template <typename T>
   class CyclicQueue {
