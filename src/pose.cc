@@ -43,10 +43,10 @@ void Pose::standardize() {
   }
 }
 
-void Pose::transform(double scalar, double dx, double dy) {
+void Pose::transform(double scalar, double x_diff, double y_diff) {
   for (Landmark& landmark : landmarks) {
-    landmark.x = landmark.x * scalar + dx;
-    landmark.y = landmark.y * scalar + dy;
+    landmark.x = landmark.x * scalar + x_diff;
+    landmark.y = landmark.y * scalar + y_diff;
   }
 }
 

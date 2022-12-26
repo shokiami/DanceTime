@@ -17,7 +17,7 @@ class Pose {
   Landmark getLandmark(string body_part);
   bool empty();
   void standardize();
-  void transform(double scalar, double dx, double dy);
+  void transform(double scalar, double x_diff, double y_diff);
   vector<Landmark> landmarks;
 };
 
