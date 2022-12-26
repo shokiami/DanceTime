@@ -43,7 +43,7 @@ double Scorer::getScore() {
   double best_error = DBL_MAX;
   double best_offset = 0;
   for (double t_offset = -t_elapsed; t_offset <= t_elapsed; t_offset += resolution) {
-    double error = mse(player_polys, avatar_polys, 0, t_elapsed, t_offset);
+    double error = getError(player_polys, avatar_polys, 0, t_elapsed, t_offset);
     if (error < best_error) {
       best_error = error;
       best_offset = t_offset;
@@ -98,7 +98,7 @@ vector<int> idxs;
   return coeffs;
 }
 
-double Scorer::mse(Polys player_polys, Polys avatar_polys, double t_start, double t_end, double t_offset) {
+double Scorer::getError(Polys player_polys, Polys avatar_polys, double t_start, double t_end, double t_offset) {
   if (t_start >= t_end) {
     ERROR("end time must be greater than start time");
   }
@@ -109,11 +109,15 @@ double Scorer::mse(Polys player_polys, Polys avatar_polys, double t_start, doubl
     Coeffs player_y_coeffs = player_polys[body_part].second;
     Coeffs avatar_x_coeffs = avatar_polys[body_part].first;
     Coeffs avatar_y_coeffs = avatar_polys[body_part].second;
+    Coeffs avatar_dx_coeffs = differentiate(avatar_x_coeffs);
+    Coeffs avatar_dy_coeffs = differentiate(avatar_y_coeffs);
     for (double t = t_start; t < t_end; t += resolution) {
       double x_diff = evaluate(avatar_x_coeffs, t) - evaluate(player_x_coeffs, t - t_offset);
       double y_diff = evaluate(avatar_y_coeffs, t) - evaluate(player_y_coeffs, t - t_offset);
-      numerator += x_diff * x_diff + y_diff * y_diff;
-      denominator += 1;
+      double dx = evaluate(avatar_dx_coeffs, t);
+      double dy = evaluate(avatar_dy_coeffs, t);
+      numerator += dx * dx * x_diff * x_diff + dy * dy * y_diff * y_diff;
+      denominator += dx * dx + dy * dy;
     }
   }
   double error = numerator / denominator;

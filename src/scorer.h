@@ -17,7 +17,7 @@ class Scorer {
   vector<Pose> player_poses;
   vector<Pose> avatar_poses;
   Polys fit(vector<Pose> poses);
-  double mse(Polys player_polys, Polys avatar_polys, double t_start, double t_end, double t_offset);
+  double getError(Polys player_polys, Polys avatar_polys, double t_start, double t_end, double t_offset);
   double evaluate(Coeffs coeffs, double t);
   Coeffs differentiate(Coeffs coeffs);
   static constexpr double resolution = 1;
