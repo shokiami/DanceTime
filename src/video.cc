@@ -1,11 +1,10 @@
 #include "video.h"
-#include "pose.h"
 #include "canvas.h"
 
 void VideoLoader::save(string name) {
   string video_filename = name + ".mp4";
   string pose_filename = name + ".txt";
-  cv::VideoCapture capture("videos/" + video_filename);
+  cv::VideoCapture capture = cv::VideoCapture("videos/" + video_filename);
   if (!capture.isOpened()) {
     ERROR("unable to open file \"" + video_filename + "\"");
   }
@@ -18,17 +17,21 @@ void VideoLoader::save(string name) {
   if (frame.empty()) {
     ERROR("empty frame from \"" + video_filename + "\"");
   }
-  ofstream pose_file("data/" + pose_filename);
+  std::ofstream pose_file = std::ofstream("data/" + pose_filename);
+  Map<string, int> body_part_to_index;
+  vector<string> body_parts = PoseEstimator::body_parts;
+  for (string body_part : body_parts) {
+    body_part_to_index[body_part] = std::find(body_parts.begin(), body_parts.end(), body_part) - body_parts.begin();
+  }
   while(!frame.empty()) {
     Pose pose = pose_estimator.getPose(frame, true);
-    if (pose.empty()) {
-      pose_file << "empty" << endl;
-    } else {
-      for (Landmark landmark : pose.landmarks) {
-        pose_file << landmark.x << " " << landmark.y << " " << landmark.visibility << endl;
-      }
-      canvas.renderPose(frame, pose, 255, 0, 255);
+    for (string body_part : pose.keys()) {
+      int body_part_idx = body_part_to_index[body_part];
+      Point point = pose[body_part];
+      pose_file << body_part_idx << " " << point.x << " " << point.y << " ";
     }
+    pose_file << endl;
+    canvas.render(frame, pose, 255, 0, 255);
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
     curr_frame++;
@@ -46,26 +49,24 @@ Video::Video(string name) {
   }
   int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
   poses.reserve(num_frames);
-  ifstream pose_file("data/" + pose_filename);
+  std::ifstream pose_file = std::ifstream("data/" + pose_filename);
   if (!pose_file.good()) {
     ERROR("unable to open file \"" + pose_filename + "\"");
   }
-  for (int i = 0; i < num_frames; i++) {
+  string line;
+  while (std::getline(pose_file, line)) {
+    std::istringstream string_stream = std::istringstream(line);
     Pose pose;
-    while (!pose_file.eof() && std::isspace(pose_file.peek())) {
-      pose_file.get();
-    }
-    if (pose_file.peek() == 'e') {
-      string temp;
-      pose_file >> temp;
-    } else {
-      for (string body_part : PoseEstimator::body_parts) {
-        double x, y, visibility;
-        pose_file >> x >> y >> visibility;
-        pose.addLandmark(Landmark(body_part, x, y, visibility));
-      }
+    int body_part_idx;
+    double x;
+    double y;
+    while (string_stream >> body_part_idx >> x >> y) {
+      pose[PoseEstimator::body_parts[body_part_idx]] = Point(x, y);
     }
     poses.push_back(pose);
+  }
+  if (poses.size() != num_frames) {
+    ERROR("length of text file and video file do not match");
   }
 }
 

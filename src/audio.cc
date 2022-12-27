@@ -5,7 +5,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-Audio::Audio(string name) : name(name), buffer(100000) {
+Audio::Audio(string name) : name(name), buffer(buffer_size) {
   initAVCodec();
   initRtAudio();
 }
@@ -128,40 +128,4 @@ void Audio::extractFrameData() {
     temp[2 * i + 1] = volume * ((float*) frame->data[1])[i];
   }
   buffer.enqueue(temp, 2 * frame->nb_samples);
-}
-
-template <typename T>
-Audio::CyclicQueue<T>::CyclicQueue(int max_size) : max_size(max_size), front(0), back(0) {
-  arr = new T[max_size];
-}
-
-template <typename T>
-Audio::CyclicQueue<T>::~CyclicQueue() {
-  delete[] arr;
-}
-
-template <typename T>
-void Audio::CyclicQueue<T>::enqueue(T input[], int n) {
-  for (int i = 0; i < n; i++) {
-    arr[(back + i) % max_size] = input[i];
-  }
-  back = (back + n) % max_size;
-}
-
-template <typename T>
-void Audio::CyclicQueue<T>::dequeue(T output[], int n) {
-  for (int i = 0; i < n; i++) {
-     output[i] = arr[(front + i) % max_size];
-  }
-  front = (front + n) % max_size;
-}
-
-template <typename T>
-int Audio::CyclicQueue<T>::size() {
-  return (back - front + max_size) % max_size;
-}
-
-template <typename T>
-int Audio::CyclicQueue<T>::maxSize() {
-  return max_size;
 }

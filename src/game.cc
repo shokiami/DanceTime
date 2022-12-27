@@ -28,12 +28,12 @@ void Game::update() {
   // update audio
   audio.update();
   // update score
-  scorer.addPoses(player_pose, avatar_pose);
+  scorer.add(player_pose, avatar_pose);
   TimePoint curr_time = std::chrono::steady_clock::now();
   double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count() * 1e-9;
   if (elapsed_time > 1) {
     prev_score_time = curr_time;
-    score = scorer.getScore();
+    score = scorer.score();
     scorer.reset();
     // print fps and score
     cout << "fps: " << fps << ", score: " << score << endl;
@@ -46,9 +46,7 @@ void Game::update() {
 
 void Game::render() {
   // render player's pose
-  if (!player_pose.empty()) {
-    canvas.renderPose(camera_frame, player_pose, 75, 125, 255);
-  }
+  canvas.render(camera_frame, player_pose, 75, 125, 255);
   int target_height = camera_frame.rows;
   int target_width = video.width() * target_height / video.height();
   camera_frame = camera_frame(cv::Range(0, target_height),
@@ -56,25 +54,13 @@ void Game::render() {
   // render avatar's pose
   double scalar = (double) target_height / video_frame.rows;
   cv::resize(video_frame, video_frame, cv::Size(target_width, target_height));
-  if (!avatar_pose.empty()) {
-    avatar_pose.transform(scalar, 0, 0);
-    canvas.renderPose(video_frame, avatar_pose, 255, 0, 255);
+  for (string body_part : avatar_pose.keys()) {
+    avatar_pose[body_part] *= scalar;
   }
-  // render pose comparison
-  cv::Mat test_frame = cv::Mat(target_height, target_width, camera_frame.type(), cv::Scalar(255, 255, 255));
-  if (!player_pose.empty()) {
-    player_pose.standardize();
-    player_pose.transform(160, 0.5 * target_width, 0.4 * target_height);
-    canvas.renderPose(test_frame, player_pose, 75, 125, 255);
-  }
-  if (!avatar_pose.empty()) {
-    avatar_pose.standardize();
-    avatar_pose.transform(160, 0.5 * target_width, 0.4 * target_height);
-    canvas.renderPose(test_frame, avatar_pose, 255, 0, 255);
-  }
-  // concatenate and show frames
+  canvas.render(video_frame, avatar_pose, 255, 0, 255);
+  // concatenate and display frames
+  vector<cv::Mat> frames = {video_frame, camera_frame};
   cv::Mat frame;
-  vector<cv::Mat> frames = {test_frame, video_frame, camera_frame};
   cv::hconcat(frames, frame);
   cv::imshow("DanceTime", frame);
   key_code = cv::waitKey(1) & 0xFF;

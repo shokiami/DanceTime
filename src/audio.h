@@ -1,12 +1,13 @@
 #ifndef AUDIO_H_
 #define AUDIO_H_
 
+#include "defs.h"
+#include "util.h"
 #include "rtaudio/RtAudio.h"
 extern "C" {
   #include <libavcodec/avcodec.h>
   #include <libavformat/avformat.h>
 }
-#include "defs.h"
 
 class Audio {
   public:
@@ -25,30 +26,14 @@ class Audio {
   AVPacket* packet;
   int audio_index;
   int sample_rate;
+  CyclicQueue<float> buffer;
   void initAVCodec();
   void initRtAudio();
   bool readPacket();
   void decodePacket();
   void extractFrameData();
+  static constexpr int buffer_size = 100000;
   static constexpr double volume = 0.1;
-
-  template <typename T>
-  class CyclicQueue {
-    public:
-    CyclicQueue(int size);
-    ~CyclicQueue();
-    void enqueue(T input[], int n);
-    void dequeue(T output[], int n);
-    int size();
-    int maxSize();
-
-    private:
-    T* arr;
-    int max_size;
-    int front;
-    int back;
-  };
-  CyclicQueue<float> buffer;
 };
 
 #endif

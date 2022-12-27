@@ -67,7 +67,10 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
     pose = Pose();
     for (int i = 0; i < body_parts.size(); i++) {
       const mediapipe::NormalizedLandmark& landmark = landmark_list.landmark(i);
-      pose.addLandmark(Landmark(body_parts[i], landmark.x() * raw_frame.cols, landmark.y() * raw_frame.rows, landmark.visibility()));
+      // if landmark is in frame and not obstructed, then add to pose
+      if (landmark.visibility() > 0.1) {
+        pose[body_parts[i]] = Point(landmark.x() * raw_frame.cols, landmark.y() * raw_frame.rows);
+      }
     }
   } else {
     if (wait || out_of_frame) {

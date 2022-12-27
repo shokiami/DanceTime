@@ -2,6 +2,7 @@
 #define VIDEO_H_
 
 #include "defs.h"
+#include "pose.h"
 
 class VideoLoader {
   public:
