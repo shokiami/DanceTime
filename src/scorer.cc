@@ -37,7 +37,6 @@ double Scorer::score() {
   }
   // calculate score
   double score = 100 * std::pow(sensitivity, best_error + offset_cost * best_offset * best_offset);
-  score = 0.01 * std::round(100 * score);
   return score;
 }
 
