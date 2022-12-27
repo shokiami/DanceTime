@@ -16,6 +16,7 @@ class Scorer {
   private:
   vector<Pose> player_poses;
   vector<Pose> avatar_poses;
+  void remove_outliers(vector<Pose>& poses);
   void standardize(vector<Pose>& poses);
   Polys fit(vector<Pose>& poses);
   double weighted_mse(Polys player_polys, Polys avatar_polys, double t_start, double t_end, double t_offset);

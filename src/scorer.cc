@@ -18,6 +18,9 @@ double Scorer::score() {
   }
   vector<Pose> player_poses_copy = player_poses;
   vector<Pose> avatar_poses_copy = avatar_poses;
+  // remove outliers
+  remove_outliers(player_poses_copy);
+  remove_outliers(avatar_poses_copy);
   // standardize data
   standardize(player_poses_copy);
   standardize(avatar_poses_copy);
@@ -38,6 +41,38 @@ double Scorer::score() {
   // calculate score
   double score = 100 * std::pow(sensitivity, best_error + offset_cost * std::abs(best_offset));
   return score;
+}
+
+void Scorer::remove_outliers(vector<Pose>& poses) {
+  vector<Pose> new_poses;
+  for (int i = 1; i < poses.size() - 1; i++) {
+    if (i == 0 || i == poses.size() - 1) {
+      new_poses.push_back(poses[i]);
+      continue;
+    }
+    Pose new_pose;
+    for (string body_part : poses[i].keys()) {
+      Point curr_point = poses[i][body_part];
+      new_pose[body_part] = curr_point;
+      if (!poses[i - 1].contains(body_part) || !poses[i + 1].contains(body_part)) {
+        continue;
+      }
+      Point prev_point = poses[i - 1][body_part];
+      Point next_point = poses[i + 1][body_part];
+      double adj1_x_diff = curr_point.x - prev_point.x;
+      double adj1_y_diff = curr_point.y - prev_point.y;
+      double adj2_x_diff = next_point.x - curr_point.x;
+      double adj2_y_diff = next_point.y - curr_point.y;
+      double ops_x_diff = next_point.x - prev_point.x;
+      double ops_y_diff = next_point.y - prev_point.y;
+      double adj1_sq_dist = adj1_x_diff * adj1_x_diff + adj1_y_diff * adj1_y_diff;
+      double adj2_sq_dist = adj2_x_diff * adj2_x_diff + adj2_y_diff * adj2_y_diff;
+      double ops_sq_dist = ops_x_diff * ops_x_diff + ops_y_diff * ops_y_diff;
+      if (ops_sq_dist < adj1_sq_dist || ops_sq_dist < adj2_sq_dist) {
+        new_pose[body_part] = (prev_point + next_point) / 2;
+      }
+    }
+  }
 }
 
 void Scorer::standardize(vector<Pose>& poses) {
