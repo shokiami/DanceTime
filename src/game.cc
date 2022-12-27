@@ -49,7 +49,7 @@ void Game::update() {
     // print fps and score
     if (score == 0) {
       cout << "please step into frame" << endl;
-    } else {
+    } else if (score != 100) {
       cout << "fps: " << fps << ", score: " << std::setprecision(2) << std::fixed << score << "%" << endl;
     }
   }

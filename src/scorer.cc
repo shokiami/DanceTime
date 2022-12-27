@@ -30,13 +30,13 @@ double Scorer::score() {
   double best_offset = 0;
   for (double t_offset = -t_elapsed; t_offset <= t_elapsed; t_offset += resolution) {
     double error = weighted_mse(player_polys, avatar_polys, 0, t_elapsed, t_offset);
-    if (error < best_error) {
+    if (error <= best_error && std::abs(t_offset) <= std::abs(best_offset)) {
       best_error = error;
       best_offset = t_offset;
     }
   }
   // calculate score
-  double score = 100 * std::pow(sensitivity, best_error + offset_cost * best_offset * best_offset);
+  double score = 100 * std::pow(sensitivity, best_error + offset_cost * std::abs(best_offset));
   return score;
 }
 
@@ -63,7 +63,7 @@ void Scorer::standardize(vector<Pose>& poses) {
 }
 
 Polys Scorer::fit(vector<Pose>& poses) {
-  Polys coeffs;
+  Polys polys;
   for (string body_part : PoseEstimator::body_parts) {
     vector<int> idxs;
     for (int i = 0; i < poses.size(); i++) {
@@ -94,19 +94,22 @@ Polys Scorer::fit(vector<Pose>& poses) {
     Eigen::VectorXd eigen_y_coeffs = a.colPivHouseholderQr().solve(p_y);
     Coeffs x_coeffs = Coeffs(eigen_x_coeffs.data(), eigen_x_coeffs.data() + eigen_x_coeffs.size());
     Coeffs y_coeffs = Coeffs(eigen_y_coeffs.data(), eigen_y_coeffs.data() + eigen_y_coeffs.size());
-    coeffs[body_part] = {x_coeffs, y_coeffs};
+    polys[body_part] = {x_coeffs, y_coeffs};
   }
-  return coeffs;
+  return polys;
 }
 
 double Scorer::weighted_mse(Polys player_polys, Polys avatar_polys, double t_start, double t_end, double t_offset) {
   if (t_start >= t_end) {
     ERROR("end time must be greater than start time");
   }
+  if (avatar_polys.empty()) {
+    return 0;
+  }
   double numerator = 0;
   double denominator = 0;
-  for (string body_part : PoseEstimator::body_parts) {
-    if (player_polys.contains(body_part) && avatar_polys.contains(body_part)) {
+  for (string body_part : avatar_polys.keys()) {
+    if (player_polys.contains(body_part)) {
       Coeffs player_x_coeffs = player_polys[body_part].first;
       Coeffs player_y_coeffs = player_polys[body_part].second;
       Coeffs avatar_x_coeffs = avatar_polys[body_part].first;
@@ -118,10 +121,8 @@ double Scorer::weighted_mse(Polys player_polys, Polys avatar_polys, double t_sta
         double y_diff = evaluate(avatar_y_coeffs, t) - evaluate(player_y_coeffs, t - t_offset);
         double dx = evaluate(avatar_dx_coeffs, t);
         double dy = evaluate(avatar_dy_coeffs, t);
-        double wx = dx * dx;
-        double wy = dy * dy;
-        numerator += wx * x_diff * x_diff + wy * y_diff * y_diff;
-        denominator += wx + wy;
+        numerator += std::abs(dx) * x_diff * x_diff + std::abs(dy) * y_diff * y_diff;
+        denominator += std::abs(dx) + std::abs(dy);
       }
     }
   }
