@@ -11,7 +11,7 @@ class PoseEstimator {
   PoseEstimator();
   ~PoseEstimator();
   Pose getPose(cv::Mat& frame, bool wait = false);
-  static vector<string> body_parts;
+  static const vector<string> body_parts;
 };
 
 #endif

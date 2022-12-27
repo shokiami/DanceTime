@@ -43,15 +43,15 @@ double Scorer::score() {
 
 void Scorer::standardize(vector<Pose>& poses) {
   for (Pose& pose : poses) {
-    if (!pose.contains("left shoulder") || !pose.contains("left hip") ||
-        !pose.contains("right shoulder") || !pose.contains("right hip")) {
+    if (!pose.contains("left_shoulder") || !pose.contains("left_hip") ||
+        !pose.contains("right_shoulder") || !pose.contains("right_hip")) {
       pose = Pose();
       continue;
     }
-    Point left_shoulder = pose["left shoulder"];
-    Point left_hip = pose["left hip"];
-    Point right_shoulder = pose["right shoulder"];
-    Point right_hip = pose["right hip"];
+    Point left_shoulder = pose["left_shoulder"];
+    Point left_hip = pose["left_hip"];
+    Point right_shoulder = pose["right_shoulder"];
+    Point right_hip = pose["right_hip"];
     double center_x = (left_shoulder.x + left_hip.x + right_shoulder.x + right_hip.x) / 4;
     double center_y = (left_shoulder.y + left_hip.y + right_shoulder.y + right_hip.y) / 4;
     double torso_height = ((left_hip.y - left_shoulder.y) + (right_hip.y - right_shoulder.y)) / 2;

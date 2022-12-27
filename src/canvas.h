@@ -7,7 +7,7 @@
 class Canvas {
   public:
   void render(cv::Mat& frame, Pose& pose, double r, double g, double b);
-  static vector<pair<string, string>> pose_lines;
+  static const vector<pair<string, string>> pose_lines;
 };
 
 #endif

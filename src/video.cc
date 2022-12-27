@@ -18,17 +18,11 @@ void VideoLoader::save(string name) {
     ERROR("empty frame from \"" + video_filename + "\"");
   }
   std::ofstream pose_file = std::ofstream("data/" + pose_filename);
-  Map<string, int> body_part_to_index;
-  vector<string> body_parts = PoseEstimator::body_parts;
-  for (string body_part : body_parts) {
-    body_part_to_index[body_part] = std::find(body_parts.begin(), body_parts.end(), body_part) - body_parts.begin();
-  }
   while(!frame.empty()) {
     Pose pose = pose_estimator.getPose(frame, true);
     for (string body_part : pose.keys()) {
-      int body_part_idx = body_part_to_index[body_part];
       Point point = pose[body_part];
-      pose_file << body_part_idx << " " << point.x << " " << point.y << " ";
+      pose_file << body_part << " " << point.x << " " << point.y << " ";
     }
     pose_file << endl;
     canvas.render(frame, pose, 255, 0, 255);
@@ -57,11 +51,11 @@ Video::Video(string name) {
   while (std::getline(pose_file, line)) {
     std::istringstream string_stream = std::istringstream(line);
     Pose pose;
-    int body_part_idx;
+    string body_part;
     double x;
     double y;
-    while (string_stream >> body_part_idx >> x >> y) {
-      pose[PoseEstimator::body_parts[body_part_idx]] = Point(x, y);
+    while (string_stream >> body_part >> x >> y) {
+      pose[body_part] = Point(x, y);
     }
     poses.push_back(pose);
   }
