@@ -5,6 +5,7 @@ Game::Game(string name) : capture(0), video(name), audio(name) {
   video.play();
   prev_score_time = std::chrono::steady_clock::now();
   prev_fps_time = std::chrono::steady_clock::now();
+  debug = false;
 }
 
 bool Game::finished() {
@@ -61,6 +62,11 @@ void Game::update() {
 }
 
 void Game::render() {
+  // toggle debug mode
+  if (key_code == ' ') {
+    debug = !debug;
+  }
+
   // prepare resizing constants
   const double video_scalar = camera_frame.rows / ((double) footer_frame.rows * video_frame.cols / footer_frame.cols + video_frame.rows);
   const int video_height = video_scalar * video_frame.rows;
@@ -71,16 +77,20 @@ void Game::render() {
   const int footer_width = video_width;
 
   // crop camera frame
-  // canvas.render(camera_frame, player_pose, 75, 125, 255);
+  if (debug) {
+    canvas.render(camera_frame, player_pose, 75, 125, 255);
+  }
   camera_frame = camera_frame(cv::Range(0, camera_height),
     cv::Range(0.5 * camera_frame.cols - 0.5 * camera_width, 0.5 * camera_frame.cols + 0.5 * camera_width));
 
   // resize video frame and avatar pose
   cv::resize(video_frame, video_frame, cv::Size(video_width, video_height));
-  for (string body_part : avatar_pose.keys()) {
-    avatar_pose[body_part] *= video_scalar;
+  if (debug) {
+    for (string body_part : avatar_pose.keys()) {
+      avatar_pose[body_part] *= video_scalar;
+    }
+    canvas.render(video_frame, avatar_pose, 255, 0, 255);
   }
-  // canvas.render(video_frame, avatar_pose, 255, 0, 255);
 
   // resize foot frame
   cv::resize(footer_frame, footer_frame, cv::Size(footer_width, footer_height));
