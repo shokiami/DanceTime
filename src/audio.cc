@@ -122,10 +122,8 @@ void Audio::decodePacket() {
 void Audio::extractFrameData() {
   float temp[2 * frame->nb_samples];
   for (int i = 0; i < frame->nb_samples; i++) {
-    // left speaker
-    temp[2 * i] = volume * ((float*) frame->data[0])[i];
-    // right speaker
-    temp[2 * i + 1] = volume * ((float*) frame->data[1])[i];
+    temp[2 * i] = ((float*) frame->data[0])[i];  // left speaker
+    temp[2 * i + 1] = ((float*) frame->data[1])[i];  // right speaker
   }
   buffer.enqueue(temp, 2 * frame->nb_samples);
 }

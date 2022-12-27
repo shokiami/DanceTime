@@ -33,7 +33,6 @@ class Audio {
   void decodePacket();
   void extractFrameData();
   static constexpr int buffer_size = 100000;
-  static constexpr double volume = 0.1;
 };
 
 #endif
