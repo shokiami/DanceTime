@@ -45,7 +45,7 @@ double Scorer::score() {
 
 void Scorer::remove_outliers(vector<Pose>& poses) {
   vector<Pose> new_poses;
-  for (int i = 1; i < poses.size() - 1; i++) {
+  for (int i = 0; i < poses.size(); i++) {
     if (i == 0 || i == poses.size() - 1) {
       new_poses.push_back(poses[i]);
       continue;
@@ -72,7 +72,9 @@ void Scorer::remove_outliers(vector<Pose>& poses) {
         new_pose[body_part] = (prev_point + next_point) / 2;
       }
     }
+    new_poses.push_back(new_pose);
   }
+  poses = new_poses;
 }
 
 void Scorer::standardize(vector<Pose>& poses) {
