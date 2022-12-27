@@ -92,7 +92,7 @@ void Game::render() {
     canvas.render(video_frame, avatar_pose, 255, 0, 255);
   }
 
-  // resize foot frame
+  // resize footer frame
   cv::resize(footer_frame, footer_frame, cv::Size(footer_width, footer_height));
 
   // concatenate and display frames
