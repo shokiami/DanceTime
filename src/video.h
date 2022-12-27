@@ -14,17 +14,17 @@ class Video {
   Video(string name);
   void play();
   bool finished();
-  cv::Mat getFrame();
+  cv::Mat currFrame();
+  cv::Mat currFooterFrame();
   Pose getPose();
-  int width();
-  int height();
   int length();
   int fps();
   double currTime();
   double totalTime();
 
   private:
-  cv::VideoCapture capture;
+  cv::VideoCapture video;
+  cv::VideoCapture footer;
   TimePoint start_time;
   vector<Pose> poses;
   int currIndex();

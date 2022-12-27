@@ -10,7 +10,7 @@
 
 class Game {
   public:
-  Game();
+  Game(string name);
   bool finished();
   void update();
   void render();
@@ -25,6 +25,7 @@ class Game {
   Pose avatar_pose;
   cv::Mat camera_frame;
   cv::Mat video_frame;
+  cv::Mat footer_frame;
   Scorer scorer;
   double score;
   TimePoint prev_score_time;

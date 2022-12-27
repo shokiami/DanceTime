@@ -4,16 +4,16 @@
 void VideoLoader::save(string name) {
   string video_filename = name + ".mp4";
   string pose_filename = name + ".txt";
-  cv::VideoCapture capture = cv::VideoCapture("videos/" + video_filename);
-  if (!capture.isOpened()) {
+  cv::VideoCapture video = cv::VideoCapture("videos/" + video_filename);
+  if (!video.isOpened()) {
     ERROR("unable to open file \"" + video_filename + "\"");
   }
-  int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
+  int num_frames = video.get(cv::CAP_PROP_FRAME_COUNT);
   int curr_frame = 0;
   cv::Mat frame;
   PoseEstimator pose_estimator;
   Canvas canvas;
-  capture.read(frame);
+  video.read(frame);
   if (frame.empty()) {
     ERROR("empty frame from \"" + video_filename + "\"");
   }
@@ -30,19 +30,28 @@ void VideoLoader::save(string name) {
     cv::waitKey(1);
     curr_frame++;
     cout << "loading: " << std::setprecision(2) << std::fixed << (double) curr_frame / num_frames * 100 << "%" << endl;
-    capture.read(frame);
+    video.read(frame);
   }
 }
 
 Video::Video(string name) {
   string video_filename = name + ".mp4";
+  string footer_filename = name + "_footer.mp4";
   string pose_filename = name + ".txt";
-  capture = cv::VideoCapture("videos/" + video_filename);
-  if (!capture.isOpened()) {
+  video = cv::VideoCapture("videos/" + video_filename);
+  if (!video.isOpened()) {
     ERROR("unable to open file \"" + video_filename + "\"");
   }
-  int num_frames = capture.get(cv::CAP_PROP_FRAME_COUNT);
-  poses.reserve(num_frames);
+  footer = cv::VideoCapture("videos/" + footer_filename);
+  if (!footer.isOpened()) {
+    ERROR("unable to open file \"" + footer_filename + "\"");
+  }
+  if (footer.get(cv::CAP_PROP_FRAME_COUNT) != video.get(cv::CAP_PROP_FRAME_COUNT)) {
+    ERROR("length of video and footer do not match")
+  }
+  if (footer.get(cv::CAP_PROP_FPS) != video.get(cv::CAP_PROP_FPS)) {
+    ERROR("fps of video and footer do not match")
+  }
   std::ifstream pose_file = std::ifstream("data/" + pose_filename);
   if (!pose_file.good()) {
     ERROR("unable to open file \"" + pose_filename + "\"");
@@ -59,8 +68,8 @@ Video::Video(string name) {
     }
     poses.push_back(pose);
   }
-  if (poses.size() != num_frames) {
-    ERROR("length of text file and video file do not match");
+  if (poses.size() != video.get(cv::CAP_PROP_FRAME_COUNT)) {
+    ERROR("length of video and text file do not match");
   }
 }
 
@@ -72,12 +81,21 @@ bool Video::finished() {
   return currIndex() >= length();
 }
 
-cv::Mat Video::getFrame() {
-  for (int i = capture.get(cv::CAP_PROP_POS_FRAMES); i < currIndex() - 1; i++) {
-    capture.grab();
+cv::Mat Video::currFrame() {
+  for (int i = video.get(cv::CAP_PROP_POS_FRAMES); i < currIndex() - 1; i++) {
+    video.grab();
   }
   cv::Mat frame;
-  capture.read(frame);
+  video.read(frame);
+  return frame;
+}
+
+cv::Mat Video::currFooterFrame() {
+  for (int i = footer.get(cv::CAP_PROP_POS_FRAMES); i < currIndex() - 1; i++) {
+    footer.grab();
+  }
+  cv::Mat frame;
+  footer.read(frame);
   return frame;
 }
 
@@ -85,20 +103,12 @@ Pose Video::getPose() {
   return poses[currIndex()];
 }
 
-int Video::width() {
-  return capture.get(cv::CAP_PROP_FRAME_WIDTH);
-}
-
-int Video::height() {
-  return capture.get(cv::CAP_PROP_FRAME_HEIGHT);
-}
-
 int Video::length() {
-  return capture.get(cv::CAP_PROP_FRAME_COUNT);
+  return video.get(cv::CAP_PROP_FRAME_COUNT);
 }
 
 int Video::fps() {
-  return capture.get(cv::CAP_PROP_FPS) + 0.5;
+  return video.get(cv::CAP_PROP_FPS) + 0.5;
 }
 
 double Video::currTime() {

@@ -2,7 +2,7 @@
 
 int main() {
   cout << "loading DanceTime..." << endl;
-  Game game;
+  Game game = Game("feel_this_moment");
   while (!game.finished()) {
     game.update();
     game.render();
