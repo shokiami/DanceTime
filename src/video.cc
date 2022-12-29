@@ -18,6 +18,7 @@ void VideoLoader::save(string name) {
     ERROR("empty frame from \"" + video_filename + "\"");
   }
   std::ofstream pose_file = std::ofstream("data/" + pose_filename);
+  cout << std::setprecision(2) << std::fixed;
   while(!frame.empty()) {
     Pose pose = pose_estimator.getPose(frame, true);
     for (string body_part : pose.keys()) {
@@ -29,7 +30,7 @@ void VideoLoader::save(string name) {
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
     curr_frame++;
-    cout << "loading: " << std::setprecision(2) << std::fixed << (double) curr_frame / num_frames * 100 << "%" << endl;
+    cout << "loading: " << 100.0 * curr_frame / num_frames << "%" << endl;
     video.read(frame);
   }
 }

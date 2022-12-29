@@ -50,8 +50,9 @@ void Game::update() {
     // print fps and score
     if (score == 0) {
       cout << "please step into frame" << endl;
-    } else if (score != 100) {
-      cout << "fps: " << fps << ", score: " << std::setprecision(2) << std::fixed << score << "%" << endl;
+    } else if (score != 1) {
+      score = 0.01 * std::round(10000 * score);
+      cout << "fps: " << fps << ", score: " << score << "%" << endl;
     }
   }
 
