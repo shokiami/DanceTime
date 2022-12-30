@@ -45,12 +45,12 @@ void Game::update() {
 
   // update fps
   TimePoint curr_time = std::chrono::steady_clock::now();
-  double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count() * 1e-9;
+  double elapsed_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count();
   prev_fps_time = curr_time;
   fps = 1 / elapsed_time;
 
   // update score
-  elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count() * 1e-9;
+  elapsed_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count();
   if (elapsed_time >= 1) {
     prev_score_time = curr_time;
     score = scorer.score(player_history, avatar_history);

@@ -10,74 +10,84 @@ constexpr char kInputStream[] = "input_video";
 constexpr char kOutputStream[] = "pose_landmarks";
 string calculator_graph_config_file = "mediapipe/pose_tracking.pbtxt";
 mediapipe::CalculatorGraph* graph;
-mediapipe::OutputStreamPoller* landmark_poller;
+mediapipe::OutputStreamPoller* poller;
 Pose pose;
-bool out_of_frame;
+bool prev_inframe;
 
 PoseEstimator::PoseEstimator() {
-  // get the calculator graph configuration
+  // initialize calculator graph
   string calculator_graph_config_contents;
   mediapipe::file::GetContents(calculator_graph_config_file, &calculator_graph_config_contents);
-  mediapipe::CalculatorGraphConfig config =
-    mediapipe::ParseTextProtoOrDie<mediapipe::CalculatorGraphConfig>(calculator_graph_config_contents);
-  // initialize the calculator graph
+  mediapipe::CalculatorGraphConfig config = mediapipe::ParseTextProtoOrDie<mediapipe::CalculatorGraphConfig>(
+    calculator_graph_config_contents
+  );
   graph = new mediapipe::CalculatorGraph();
   graph->Initialize(config);
-  // start running the calculator graph
-  landmark_poller = new mediapipe::OutputStreamPoller(std::move(*graph->AddOutputStreamPoller(kOutputStream)));
+
+  // start running calculator graph
+  poller = new mediapipe::OutputStreamPoller(std::move(*graph->AddOutputStreamPoller(kOutputStream)));
   graph->StartRun({});
-  out_of_frame = false;
+  prev_inframe = false;
 }
 
 PoseEstimator::~PoseEstimator() {
   graph->CloseInputStream(kInputStream);
-  delete landmark_poller;
+  delete poller;
   delete graph;
 }
 
 Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
-  // convert the frame from BGR to RGB
+  // convert frame from BGR to RGB
   cv::Mat rgb_frame;
   cv::cvtColor(raw_frame, rgb_frame, cv::COLOR_BGR2RGB);
-  // wrap the frame into an ImageFrame
-  std::unique_ptr<mediapipe::ImageFrame> input_frame = absl::make_unique<mediapipe::ImageFrame>(
-    mediapipe::ImageFormat::SRGB, raw_frame.cols, raw_frame.rows,
-    mediapipe::ImageFrame::kDefaultAlignmentBoundary);
-  rgb_frame.copyTo(mediapipe::formats::MatView(input_frame.get()));
-  // send the image packet into the graph
-  size_t start_time = (double) cv::getTickCount() / cv::getTickFrequency() * 1e6;
-  graph->AddPacketToInputStream(kInputStream, 
-    mediapipe::Adopt(input_frame.release()).At(mediapipe::Timestamp(start_time)));
-  // if 'wait', then wait until the graph returns a new landmark packet or 0.1 seconds pass by
+
+  // convert frame into an ImageFrame
+  std::unique_ptr<mediapipe::ImageFrame> image_frame = absl::make_unique<mediapipe::ImageFrame>(
+    mediapipe::ImageFormat::SRGB, raw_frame.cols, raw_frame.rows, mediapipe::ImageFrame::kDefaultAlignmentBoundary
+  );
+  rgb_frame.copyTo(mediapipe::formats::MatView(image_frame.get()));
+
+  // send frame to graph input stream
+  double start_time = (double) cv::getTickCount() / cv::getTickFrequency();
+  mediapipe::Timestamp timestamp = mediapipe::Timestamp(1e6 * start_time);
+  graph->AddPacketToInputStream(kInputStream, mediapipe::Adopt(image_frame.release()).At(timestamp));
+
   if (wait) {
-    size_t curr_time = start_time;
-    while (landmark_poller->QueueSize() == 0 && (curr_time - start_time) * 1e-6 < 0.1) {
-      // wait
-      curr_time = (double) cv::getTickCount() / cv::getTickFrequency() * 1e6;
+    // wait until output stream poller has a packet or 0.1 seconds pass by
+    double curr_time = start_time;
+    while (poller->QueueSize() == 0 && (curr_time - start_time) < 0.1) {
+      curr_time = (double) cv::getTickCount() / cv::getTickFrequency();
     }
   }
-  // if there is a new landmark packet, then update pose
-  if (landmark_poller->QueueSize() > 0) {
-    out_of_frame = false;
-    // get the landmark list
-    mediapipe::Packet landmark_packet;
-    landmark_poller->Next(&landmark_packet);
-    const mediapipe::NormalizedLandmarkList& landmark_list = landmark_packet.Get<mediapipe::NormalizedLandmarkList>();
-    // build the pose from the landmark list
-    pose = Pose();
-    for (int i = 0; i < body_parts.size(); i++) {
-      const mediapipe::NormalizedLandmark& landmark = landmark_list.landmark(i);
-      // if landmark is in frame and not obstructed, then add to pose
-      if (landmark.visibility() > 0.1) {
-        pose[body_parts[i]] = Point(landmark.x() * raw_frame.cols, landmark.y() * raw_frame.rows);
-      }
-    }
-  } else {
-    if (wait || out_of_frame) {
-      // the pose is out of frame
+
+  // if output stream poller does not have an available packet
+  if (poller->QueueSize() == 0) {
+    if (wait || !prev_inframe) {
+      // pose is out of frame
       pose = Pose();
     }
-    out_of_frame = true;
+    prev_inframe = false;
+    return pose;
   }
+
+  // get packet from output stream poller
+  mediapipe::Packet packet;
+  poller->Next(&packet);
+
+  // get landmark list from packet
+  const mediapipe::NormalizedLandmarkList& landmark_list = packet.Get<mediapipe::NormalizedLandmarkList>();
+
+  // build the pose from the landmark list
+  pose = Pose();
+  for (int i = 0; i < body_parts.size(); i++) {
+    const mediapipe::NormalizedLandmark& landmark = landmark_list.landmark(i);
+
+    // add landmark to pose if visible
+    if (landmark.visibility() > 0.1) {
+      pose[body_parts[i]] = Point(landmark.x() * raw_frame.cols, landmark.y() * raw_frame.rows);
+    }
+  }
+
+  prev_inframe = true;
   return pose;
 }
