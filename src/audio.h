@@ -15,7 +15,6 @@ class Audio {
   ~Audio();
   void play();
   void update();
-  friend int callback(void* output_buffer, void* input_buffer, unsigned int num_frames, double stream_time, RtAudioStreamStatus status, void* user_data);
 
   private:
   string name;
@@ -31,7 +30,15 @@ class Audio {
   void initRtAudio();
   bool readPacket();
   void decodePacket();
-  void extractFrameData();
+  void enqueueFrame();
+  friend int dequeueFrame(
+    void* output_buffer,
+    void* input_buffer,
+    unsigned int num_frames,
+    double stream_time,
+    RtAudioStreamStatus status,
+    void* user_data
+  );
   static constexpr int buffer_size = 1e5;
 };
 
