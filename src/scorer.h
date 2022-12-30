@@ -17,7 +17,7 @@ class Scorer {
   void remove_outliers(vector<Pose>& poses);
   void standardize(vector<Pose>& poses);
   Polys fit(vector<Pose>& poses);
-  double max_error(Polys player_polys, Polys avatar_polys, double t_start, double t_end, double t_offset);
+  double max_error(Polys player_polys, Polys avatar_polys, double start_time, double end_time, double offset);
   double evaluate(Coeffs coeffs, double t);
   double error_to_score(double error);
   static const vector<string> body_parts;

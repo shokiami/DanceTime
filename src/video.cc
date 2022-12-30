@@ -1,64 +1,91 @@
 #include "video.h"
 #include "canvas.h"
 
-void VideoLoader::save(string name) {
+void VideoSaver::save(string name) {
+  // open video file
   string video_filename = name + ".mp4";
-  string pose_filename = name + ".txt";
   cv::VideoCapture video = cv::VideoCapture("videos/" + video_filename);
   if (!video.isOpened()) {
     ERROR("unable to open file \"" + video_filename + "\"");
   }
-  int num_frames = video.get(cv::CAP_PROP_FRAME_COUNT);
-  int curr_frame = 0;
-  cv::Mat frame;
+
+  // open text file
+  string text_filename = name + ".txt";
+  std::ofstream text_file = std::ofstream("data/" + text_filename);
+  if (!text_file) {
+    ERROR("unable to open file \"" + text_filename + "\"")
+  }
+
+  // save video
   PoseEstimator pose_estimator;
   Canvas canvas;
+  cv::Mat frame;
   video.read(frame);
   if (frame.empty()) {
     ERROR("empty frame from \"" + video_filename + "\"");
   }
-  std::ofstream pose_file = std::ofstream("data/" + pose_filename);
+  int curr_frame = 0;
   cout << std::setprecision(2) << std::fixed;
   while(!frame.empty()) {
+    // run pose estimation in synchronous mode
     Pose pose = pose_estimator.getPose(frame, true);
+
+    // write pose to text file
     for (string body_part : pose.keys()) {
       Point point = pose[body_part];
-      pose_file << body_part << " " << point.x << " " << point.y << " ";
+      text_file << body_part << " " << point.x << " " << point.y << " ";
     }
-    pose_file << endl;
+    text_file << endl;
+
+    // render pose
     canvas.render(frame, pose, 255, 0, 255);
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
+
+    // print progress
     curr_frame++;
-    cout << "loading: " << 1e2 * curr_frame / num_frames << "%" << endl;
+    cout << "loading: " << 1e2 * curr_frame / video.get(cv::CAP_PROP_FRAME_COUNT) << "%" << endl;
+
+    // read next frame
     video.read(frame);
   }
+
+  text_file.close();
 }
 
 Video::Video(string name) {
+  // open video file
   string video_filename = name + ".mp4";
-  string footer_filename = name + "_footer.mp4";
-  string pose_filename = name + ".txt";
   video = cv::VideoCapture("videos/" + video_filename);
   if (!video.isOpened()) {
     ERROR("unable to open file \"" + video_filename + "\"");
   }
+
+  // open footer file 
+  string footer_filename = name + "_footer.mp4";
   footer = cv::VideoCapture("videos/" + footer_filename);
   if (!footer.isOpened()) {
     ERROR("unable to open file \"" + footer_filename + "\"");
   }
+
+  // make sure video and footer file are compatable
   if (footer.get(cv::CAP_PROP_FRAME_COUNT) != video.get(cv::CAP_PROP_FRAME_COUNT)) {
     ERROR("length of video and footer do not match")
   }
   if (footer.get(cv::CAP_PROP_FPS) != video.get(cv::CAP_PROP_FPS)) {
     ERROR("fps of video and footer do not match")
   }
-  std::ifstream pose_file = std::ifstream("data/" + pose_filename);
-  if (!pose_file.good()) {
-    ERROR("unable to open file \"" + pose_filename + "\"");
+
+  // open text file 
+  string text_filename = name + ".txt";
+  std::ifstream text_file = std::ifstream("data/" + text_filename);
+  if (!text_file) {
+    ERROR("unable to open file \"" + text_filename + "\"");
   }
+
+  // load poses from text file
   string line;
-  while (std::getline(pose_file, line)) {
+  while (std::getline(text_file, line)) {
     std::istringstream string_stream = std::istringstream(line);
     Pose pose;
     string body_part;
@@ -72,6 +99,8 @@ Video::Video(string name) {
   if (poses.size() != video.get(cv::CAP_PROP_FRAME_COUNT)) {
     ERROR("length of video and text file do not match");
   }
+
+  text_file.close();
 }
 
 void Video::play() {
@@ -83,18 +112,24 @@ bool Video::finished() {
 }
 
 cv::Mat Video::currFrame() {
+  // skip to current frame
   for (int i = video.get(cv::CAP_PROP_POS_FRAMES); i < currIndex() - 1; i++) {
     video.grab();
   }
+
+  // read current frame
   cv::Mat frame;
   video.read(frame);
   return frame;
 }
 
 cv::Mat Video::currFooterFrame() {
+  // skip to current frame
   for (int i = footer.get(cv::CAP_PROP_POS_FRAMES); i < currIndex() - 1; i++) {
     footer.grab();
   }
+
+  // read current frame
   cv::Mat frame;
   footer.read(frame);
   return frame;
@@ -114,7 +149,7 @@ int Video::fps() {
 
 double Video::currTime() {
   TimePoint curr_time = std::chrono::steady_clock::now();
-  return std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - start_time).count() * 1e-9;
+  return 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - start_time).count();
 }
 
 double Video::totalTime() {

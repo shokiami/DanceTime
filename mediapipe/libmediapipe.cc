@@ -77,12 +77,11 @@ Pose PoseEstimator::getPose(cv::Mat& raw_frame, bool wait) {
   // get landmark list from packet
   const mediapipe::NormalizedLandmarkList& landmark_list = packet.Get<mediapipe::NormalizedLandmarkList>();
 
-  // build the pose from the landmark list
+  // build pose from landmark list
   pose = Pose();
   for (int i = 0; i < body_parts.size(); i++) {
+    // get landmark and add to pose if visible
     const mediapipe::NormalizedLandmark& landmark = landmark_list.landmark(i);
-
-    // add landmark to pose if visible
     if (landmark.visibility() > 0.1) {
       pose[body_parts[i]] = Point(landmark.x() * raw_frame.cols, landmark.y() * raw_frame.rows);
     }

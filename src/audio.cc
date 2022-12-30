@@ -37,7 +37,7 @@ void Audio::initAVCodec() {
     ERROR("unable to open file \"" + video_filename + "\"");
   }
   if (avformat_find_stream_info(format_ctx, nullptr) < 0) {
-    ERROR("could not get the stream info");
+    ERROR("could not get stream info");
   }
 
   // find audio codec
@@ -121,7 +121,7 @@ void Audio::decodePacket() {
   // send packet to decoder
   int response = avcodec_send_packet(codec_ctx, packet);
   if (response < 0) {
-    ERROR("failed to send packet to the decoder");
+    ERROR("failed to send packet to decoder");
   }
 
   while (response >= 0) {
@@ -130,7 +130,7 @@ void Audio::decodePacket() {
     if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
       break;
     } else if (response < 0) {
-      ERROR("failed to receive frame from the decoder");
+      ERROR("failed to receive frame from decoder");
     }
     if (response >= 0) {
       enqueueFrame();

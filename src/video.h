@@ -4,7 +4,7 @@
 #include "defs.h"
 #include "pose.h"
 
-class VideoLoader {
+class VideoSaver {
   public:
   void save(string name);
 };

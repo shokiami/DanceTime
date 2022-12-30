@@ -3,7 +3,7 @@
 input_stream: "input_video"  # ImageFrame
 output_stream: "pose_landmarks"  # NormalizedLandmarkList
 
-# subgraph that limits the images flowing downstream to prevent back-ups
+# subgraph that limits images flowing downstream to prevent back-ups
 node {
   calculator: "FlowLimiterCalculator"
   input_stream: "input_video"

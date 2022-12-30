@@ -24,10 +24,12 @@ const vector<pair<string, string>> Canvas::pose_lines = {
 
 void Canvas::render(cv::Mat& frame, Pose& pose, double r, double g, double b) {
   cv::Scalar color = cv::Scalar(b, g, r);
+
   for (pair<string, string> body_parts : pose_lines) {
     if (pose.contains(body_parts.first) && pose.contains(body_parts.second)) {
       Point point1 = pose[body_parts.first];
       Point point2 = pose[body_parts.second];
+
       cv::line(frame, point1, point2, color, 3, cv::LINE_AA);
       cv::circle(frame, point1, 5, color, cv::FILLED, cv::LINE_AA);
       cv::circle(frame, point2, 5, color, cv::FILLED, cv::LINE_AA);

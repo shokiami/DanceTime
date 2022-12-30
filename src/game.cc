@@ -29,7 +29,7 @@ void Game::update() {
   // get footer frame
   footer_frame = video.currFooterFrame();
   if (footer_frame.empty()) {
-    ERROR("empty frame from video");
+    ERROR("empty frame from footer");
   }
 
   // get poses
@@ -43,15 +43,10 @@ void Game::update() {
   // update audio
   audio.update();
 
-  // update fps
-  TimePoint curr_time = std::chrono::steady_clock::now();
-  double elapsed_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count();
-  prev_fps_time = curr_time;
-  fps = 1 / elapsed_time;
-
   // update score
-  elapsed_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count();
-  if (elapsed_time >= 1) {
+  TimePoint curr_time = std::chrono::steady_clock::now();
+  double elapsed_score_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count();
+  if (elapsed_score_time >= 1) {
     prev_score_time = curr_time;
     score = scorer.score(player_history, avatar_history);
     // print fps and score
@@ -64,6 +59,11 @@ void Game::update() {
     player_history.clear();
     avatar_history.clear();
   }
+
+  // update fps
+  double elapsed_fps_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count();
+  prev_fps_time = curr_time;
+  fps = 1 / elapsed_fps_time;
 }
 
 void Game::render() {
