@@ -23,6 +23,8 @@ class Game {
   Audio audio;
   Pose player_pose;
   Pose avatar_pose;
+  vector<Pose> player_history;
+  vector<Pose> avatar_history;
   cv::Mat camera_frame;
   cv::Mat video_frame;
   cv::Mat footer_frame;

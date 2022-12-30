@@ -30,7 +30,7 @@ void VideoLoader::save(string name) {
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
     curr_frame++;
-    cout << "loading: " << 100.0 * curr_frame / num_frames << "%" << endl;
+    cout << "loading: " << 1e2 * curr_frame / num_frames << "%" << endl;
     video.read(frame);
   }
 }

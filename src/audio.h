@@ -32,7 +32,7 @@ class Audio {
   bool readPacket();
   void decodePacket();
   void extractFrameData();
-  static constexpr int buffer_size = 100000;
+  static constexpr int buffer_size = 1e5;
 };
 
 #endif
