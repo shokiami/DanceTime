@@ -109,7 +109,7 @@ void Game::render() {
 
   // render fps
   if (debug) {
-    cv::putText(frame, "fps: " + std::to_string(fps), cv::Point(15, 45), cv::FONT_HERSHEY_DUPLEX, 1.0, CV_RGB(100, 200, 0), 2);
+    cv::putText(frame, "fps: " + std::to_string(fps), cv::Point(15, 45), 0, 1.0, CV_RGB(100, 200, 0), 2);
   }
 
   // display frame
