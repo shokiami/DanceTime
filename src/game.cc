@@ -43,9 +43,14 @@ void Game::update() {
   // update audio
   audio.update();
 
-  // update score
+  // update fps
   TimePoint curr_time = std::chrono::steady_clock::now();
-  double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count() * 1e-9;
+  double elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count() * 1e-9;
+  prev_fps_time = curr_time;
+  fps = 1 / elapsed_time;
+
+  // update score
+  elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count() * 1e-9;
   if (elapsed_time >= 1) {
     prev_score_time = curr_time;
     score = scorer.score(player_history, avatar_history);
@@ -53,18 +58,12 @@ void Game::update() {
     if (!scorer.inframe(player_pose)) {
       cout << "please step into frame" << endl;
     } else if (scorer.inframe(avatar_pose)) {
-      score = 1e-2 * std::round(1e4 * score);
-      cout << "fps: " << fps << ", score: " << score << "%" << endl;
+      cout << "score: " << 1e-2 * std::round(1e4 * score) << "%" << endl;
     }
     // clear histories
     player_history.clear();
     avatar_history.clear();
   }
-
-  // update fps
-  elapsed_time = std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count() * 1e-9;
-  prev_fps_time = curr_time;
-  fps = 1 / elapsed_time;
 }
 
 void Game::render() {
@@ -103,33 +102,17 @@ void Game::render() {
   // footer frame
   cv::resize(footer_frame, footer_frame, cv::Size(footer_width, footer_height));
 
-  // test frame
-  cv::Mat test_frame = cv::Mat(test_height, test_width, camera_frame.type(), cv::Scalar(255, 255, 255));
-  Point center = Point(0.5 * test_width, 0.4 * test_height);
-  double test_scalar = 0.2 * test_height;
-  if (scorer.inframe(player_pose)) {
-    Pose player_pose_copy = player_pose;
-    scorer.standardize(player_pose_copy);
-    for (string body_part : player_pose_copy.keys()) {
-      player_pose_copy[body_part] = test_scalar * player_pose_copy[body_part] + center;
-    }
-    canvas.render(test_frame, player_pose_copy, 75, 125, 255);
-  }
-  if (scorer.inframe(avatar_pose)) {
-    Pose avatar_pose_copy = avatar_pose;
-    scorer.standardize(avatar_pose_copy);
-    for (string body_part : avatar_pose_copy.keys()) {
-      avatar_pose_copy[body_part] = test_scalar * avatar_pose_copy[body_part] + center;
-    }
-    canvas.render(test_frame, avatar_pose_copy, 255, 0, 255);
+  // concatenate frames into single frame
+  cv::Mat frame;
+  cv::vconcat(video_frame, footer_frame, frame);
+  cv::hconcat(frame, camera_frame, frame);
+
+  // render fps
+  if (debug) {
+    cv::putText(frame, "fps: " + std::to_string(fps), cv::Point(15, 45), cv::FONT_HERSHEY_DUPLEX, 1.0, CV_RGB(100, 200, 0), 2);
   }
 
-  // concatenate and display frames
-  cv::Mat video_footer_frame;
-  cv::vconcat(video_frame, footer_frame, video_footer_frame);
-  vector<cv::Mat> frames = {test_frame, video_footer_frame, camera_frame};
-  cv::Mat frame;
-  cv::hconcat(frames, frame);
+  // display frame
   cv::imshow("DanceTime", frame);
   key_code = cv::waitKey(1) & 0xFF;
 }

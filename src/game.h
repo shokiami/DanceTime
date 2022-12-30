@@ -32,7 +32,7 @@ class Game {
   double score;
   TimePoint prev_score_time;
   TimePoint prev_fps_time;
-  int fps;
+  double fps;
   bool debug;
   char key_code;
 };
