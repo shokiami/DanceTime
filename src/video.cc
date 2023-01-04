@@ -49,8 +49,6 @@ void VideoSaver::save(string name) {
     // read next frame
     video.read(frame);
   }
-
-  text_file.close();
 }
 
 Video::Video(string name) {
@@ -99,8 +97,6 @@ Video::Video(string name) {
   if (poses.size() != video.get(cv::CAP_PROP_FRAME_COUNT)) {
     ERROR("length of video and text file do not match");
   }
-
-  text_file.close();
 }
 
 void Video::play() {
