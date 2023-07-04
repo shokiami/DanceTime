@@ -1,6 +1,6 @@
 # DanceTime
 
-DanceTime = Just Dance + FaceTime.
+Dance off against your friends!
 
 Compiling:
 ```
