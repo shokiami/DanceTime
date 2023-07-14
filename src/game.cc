@@ -88,28 +88,24 @@ void Game::update() {
 }
 
 void Game::render() {
-  // prepare resizing constants
+  // calculate video frame resize
   const double video_scalar = player1_frame.rows / ((double) footer_frame.rows * video_frame.cols / footer_frame.cols + video_frame.rows);
   const int video_height = video_scalar * video_frame.rows;
   const int video_width = video_scalar * video_frame.cols;
-  const int player_height = player1_frame.rows;
-  const int player_width = 1.5 * video_width;
-  const int footer_height = player_height - video_height;
-  const int footer_width = video_width;
 
   // resize player1 frame
   if (debug) {
     canvas.render(player1_frame, player1_pose, 255, 50, 50);
   }
-  player1_frame = player1_frame(cv::Range(0, player_height),
-    cv::Range(player1_frame.cols - video_width / 2 - player_width, player1_frame.cols - video_width / 2));
+  player1_frame = player1_frame(cv::Range(0, player1_frame.rows),
+    cv::Range(0, player1_frame.cols - video_width / 2));
 
   // resize player2 frame
   if (debug) {
     canvas.render(player2_frame, player2_pose, 75, 125, 255);
   }
-  player2_frame = player2_frame(cv::Range(0, player_height),
-    cv::Range(video_width / 2, video_width / 2 + player_width));
+  player2_frame = player2_frame(cv::Range(0, player2_frame.rows),
+    cv::Range(video_width / 2, player2_frame.cols));
 
   // resize video frame
   cv::resize(video_frame, video_frame, cv::Size(video_width, video_height));
@@ -121,7 +117,7 @@ void Game::render() {
   }
 
   // resize footer frame
-  cv::resize(footer_frame, footer_frame, cv::Size(footer_width, footer_height));
+  cv::resize(footer_frame, footer_frame, cv::Size(video_width, player1_frame.rows - video_height));
 
   // concatenate frames into single frame
   cv::Mat frame;
