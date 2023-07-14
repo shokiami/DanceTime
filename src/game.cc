@@ -14,11 +14,18 @@ bool Game::finished() {
 
 void Game::update() {
   // get camera frame
+  cv::Mat camera_frame;
   capture.read(camera_frame);
   if (camera_frame.empty()) {
     ERROR("empty frame from camera");
   }
   cv::flip(camera_frame, camera_frame, 1);
+
+  // get player1 frame
+  player1_frame = camera_frame(cv::Range(0, camera_frame.rows), cv::Range(0, camera_frame.cols / 2));
+
+  // get player2 frame
+  player2_frame = camera_frame(cv::Range(0, camera_frame.rows), cv::Range(camera_frame.cols / 2, camera_frame.cols));
 
   // get video frame
   video_frame = video.currFrame();
@@ -33,64 +40,78 @@ void Game::update() {
   }
 
   // get poses
-  player_pose = pose_estimator.getPose(camera_frame);
+  player1_pose = pose_estimator.getPose1(player1_frame);
+  player2_pose = pose_estimator.getPose2(player2_frame);
   avatar_pose = video.getPose();
 
-  // add poses to histories
-  player_history.push_back(player_pose);
+  // update pose histories
+  player1_history.push_back(player1_pose);
+  player2_history.push_back(player2_pose);
   avatar_history.push_back(avatar_pose);
 
   // update audio
   audio.update();
 
-  // update score
+  // update scores
   TimePoint curr_time = std::chrono::steady_clock::now();
   double elapsed_score_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count();
   if (elapsed_score_time >= 1) {
     prev_score_time = curr_time;
-    score = scorer.score(player_history, avatar_history);
-    // print fps and score
-    if (!scorer.inframe(player_pose)) {
-      cout << "please step into frame" << endl;
+    player1_score = scorer.score(player1_history, avatar_history);
+    player2_score = scorer.score(player2_history, avatar_history);
+    // print scores
+    if (!scorer.inframe(player1_pose)) {
+      cout << "player 1: please step into frame" << endl;
     } else if (scorer.inframe(avatar_pose)) {
-      cout << "score: " << 1e-2 * std::round(1e4 * score) << "%" << endl;
+      cout << "player 1: " << 1e-2 * std::round(1e4 * player1_score) << "%" << endl;
+    }
+    if (!scorer.inframe(player2_pose)) {
+      cout << "player 2: please step into frame" << endl;
+    } else if (scorer.inframe(avatar_pose)) {
+      cout << "player 2: " << 1e-2 * std::round(1e4 * player2_score) << "%" << endl;
     }
     // clear histories
-    player_history.clear();
+    player1_history.clear();
+    player2_history.clear();
     avatar_history.clear();
   }
 
   // update fps
   double elapsed_fps_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_fps_time).count();
   prev_fps_time = curr_time;
-  fps = 1 / elapsed_fps_time;
-}
+  fps = 1.0 / elapsed_fps_time;
 
-void Game::render() {
   // toggle debug mode
   if (key_code == ' ') {
     debug = !debug;
   }
+}
 
+void Game::render() {
   // prepare resizing constants
-  const double video_scalar = camera_frame.rows / ((double) footer_frame.rows * video_frame.cols / footer_frame.cols + video_frame.rows);
+  const double video_scalar = player1_frame.rows / ((double) footer_frame.rows * video_frame.cols / footer_frame.cols + video_frame.rows);
   const int video_height = video_scalar * video_frame.rows;
   const int video_width = video_scalar * video_frame.cols;
-  const int camera_height = camera_frame.rows;
-  const int camera_width = 1.5 * video_width;
-  const int footer_height = camera_height - video_height;
+  const int player_height = player1_frame.rows;
+  const int player_width = 1.5 * video_width;
+  const int footer_height = player_height - video_height;
   const int footer_width = video_width;
-  const int test_height = camera_height;
-  const int test_width = camera_width;
 
-  // camera frame
+  // resize player1 frame
   if (debug) {
-    canvas.render(camera_frame, player_pose, 75, 125, 255);
+    canvas.render(player1_frame, player1_pose, 255, 50, 50);
   }
-  camera_frame = camera_frame(cv::Range(0, camera_height),
-    cv::Range(0.5 * camera_frame.cols - 0.5 * camera_width, 0.5 * camera_frame.cols + 0.5 * camera_width));
+  player1_frame = player1_frame(cv::Range(0, player_height),
+    cv::Range(player1_frame.cols - video_width / 2 - player_width, player1_frame.cols - video_width / 2));
 
-  // video frame
+  // resize player2 frame
+  if (debug) {
+    canvas.render(player2_frame, player2_pose, 75, 125, 255);
+  }
+  player2_frame = player2_frame(cv::Range(0, player_height),
+    cv::Range(video_width / 2, video_width / 2 + player_width));
+
+  // resize video frame
   cv::resize(video_frame, video_frame, cv::Size(video_width, video_height));
   if (debug) {
     for (string body_part : avatar_pose.keys()) {
@@ -99,13 +120,13 @@ void Game::render() {
     canvas.render(video_frame, avatar_pose, 255, 0, 255);
   }
 
-  // footer frame
+  // resize footer frame
   cv::resize(footer_frame, footer_frame, cv::Size(footer_width, footer_height));
 
   // concatenate frames into single frame
   cv::Mat frame;
-  cv::vconcat(video_frame, footer_frame, frame);
-  cv::hconcat(frame, camera_frame, frame);
+  cv::vconcat(vector<cv::Mat>{video_frame, footer_frame}, frame);
+  cv::hconcat(vector<cv::Mat>{player1_frame, frame, player2_frame}, frame);
 
   // render fps
   if (debug) {

@@ -23,8 +23,8 @@ class Scorer {
   static const vector<string> body_parts;
   static constexpr int poly_degree = 3;
   static constexpr double resolution = 0.1;
-  static constexpr double padding = 5;
-  static constexpr double max_offset = 5;
+  static constexpr double padding = 5.0;
+  static constexpr double max_offset = 5.0;
   static constexpr double offset_cost = 0.02;
   static constexpr double midpoint = 0.5;
   static constexpr double intercept = 0.99;

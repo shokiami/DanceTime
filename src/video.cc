@@ -28,7 +28,7 @@ void VideoSaver::save(string name) {
   cout << std::setprecision(2) << std::fixed;
   while(!frame.empty()) {
     // run pose estimation in synchronous mode
-    Pose pose = pose_estimator.getPose(frame, true);
+    Pose pose = pose_estimator.getPose1(frame, true);
 
     // write pose to text file
     for (string body_part : pose.keys()) {

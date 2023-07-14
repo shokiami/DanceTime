@@ -9,8 +9,10 @@ double Scorer::score(vector<Pose> player_poses, vector<Pose> avatar_poses) {
   if (player_poses.size() != avatar_poses.size()) {
     ERROR("number of poses does not match");
   }
-  if (player_poses.size() <= poly_degree || player_poses.size() <= 2 * padding) {
-    ERROR("not enough poses");
+
+  // handle not enough poses case
+  if (player_poses.size() <= poly_degree || player_poses.size() <= 2.0 * padding) {
+    return 0.0;
   }
 
   // remove outliers
@@ -27,16 +29,16 @@ double Scorer::score(vector<Pose> player_poses, vector<Pose> avatar_poses) {
 
   // handle out of frame cases
   if (avatar_polys.empty()) {
-    return 1;
+    return 1.0;
   }
   if (player_polys.empty()) {
-    return 0;
+    return 0.0;
   }
 
   // scan for offset which yields smallest max error
   double elapsed_time = player_poses.size();
   double best_error = DBL_MAX;
-  double best_offset = 0;
+  double best_offset = 0.0;
   for (double offset = -max_offset; offset <= max_offset; offset += resolution) {
     double error = max_error(player_polys, avatar_polys, padding, elapsed_time - padding, offset);
     if (error < best_error) {
@@ -61,7 +63,7 @@ void Scorer::standardize(Pose& pose) {
   Point right_hip = pose["right_hip"];
 
   // get torso center
-  Point torso_center = (left_shoulder + left_hip + right_shoulder + right_hip) / 4;
+  Point torso_center = (left_shoulder + left_hip + right_shoulder + right_hip) / 4.0;
 
   // get torso length
   double torso_left_x_diff = left_shoulder.x - left_hip.x;
@@ -70,7 +72,7 @@ void Scorer::standardize(Pose& pose) {
   double torso_right_y_diff = right_shoulder.y - right_hip.y;
   double torso_left_length = std::sqrt(torso_left_x_diff * torso_left_x_diff + torso_left_y_diff * torso_left_y_diff);
   double torso_right_length = std::sqrt(torso_right_x_diff * torso_right_x_diff + torso_right_y_diff * torso_right_y_diff);
-  double torso_length = (torso_left_length + torso_right_length) / 2;
+  double torso_length = (torso_left_length + torso_right_length) / 2.0;
 
   // standardize
   for (string body_part : pose.keys()) {
@@ -112,7 +114,7 @@ void Scorer::remove_outliers(vector<Pose>& poses) {
 
       // if current is an outlier, set it to average of previous and next
       if (ops_sq_dist < adj1_sq_dist || ops_sq_dist < adj2_sq_dist) {
-        new_pose[body_part] = (prev_point + next_point) / 2;
+        new_pose[body_part] = (prev_point + next_point) / 2.0;
       }
     }
 
@@ -189,7 +191,7 @@ double Scorer::max_error(Polys player_polys, Polys avatar_polys, double start_ti
     ERROR("end time must be greater than start time");
   }
 
-  double max_error = -1;
+  double max_error = -1.0;
   for (string body_part : body_parts) {
     if (player_polys.contains(body_part) && avatar_polys.contains(body_part)) {
       // get all coefficients corresponding to body part
@@ -211,7 +213,7 @@ double Scorer::max_error(Polys player_polys, Polys avatar_polys, double start_ti
   }
 
   // if there was no shared body parts between player polys and avatar polys, return infinity
-  if (max_error == -1) {
+  if (max_error == -1.0) {
     return DBL_MAX;
   }
 
@@ -222,7 +224,7 @@ double Scorer::evaluate(Coeffs coeffs, double t) {
   int degree = coeffs.size() - 1;
 
   // evaluate polynomial with given coefficients at t
-  double result = 0;
+  double result = 0.0;
   for (int i = 0; i < coeffs.size(); i++) {
     int d = degree - i;
     result += coeffs[i] * std::pow(t, d);
@@ -232,5 +234,5 @@ double Scorer::evaluate(Coeffs coeffs, double t) {
 }
 
 double Scorer::error_to_score(double error) {
-  return 1 / (1 + std::pow(intercept / (1 - intercept), error / midpoint - 1));
+  return 1.0 / (1.0 + std::pow(intercept / (1.0 - intercept), error / midpoint - 1.0));
 }

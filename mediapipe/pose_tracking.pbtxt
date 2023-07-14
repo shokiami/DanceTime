@@ -1,23 +1,40 @@
 # MediaPipe graph that performs pose estimation with TensorFlow Lite on CPU
 
-input_stream: "input_video"  # ImageFrame
-output_stream: "pose_landmarks"  # NormalizedLandmarkList
+input_stream: "player1_frames"  # ImageFrame
+input_stream: "player2_frames"  # ImageFrame
+output_stream: "player1_poses"  # NormalizedLandmarkList
+output_stream: "player2_poses"  # NormalizedLandmarkList
 
-# subgraph that limits images flowing downstream to prevent back-ups
+# subgraphs that limit images flowing downstream to prevent back-ups
 node {
   calculator: "FlowLimiterCalculator"
-  input_stream: "input_video"
-  input_stream: "FINISHED:pose_landmarks"
+  input_stream: "player1_frames"
+  input_stream: "FINISHED:player1_poses"
   input_stream_info: {
     tag_index: "FINISHED"
     back_edge: true
   }
-  output_stream: "throttled_input_video"
+  output_stream: "player1_throttled_frames"
+}
+node {
+  calculator: "FlowLimiterCalculator"
+  input_stream: "player2_frames"
+  input_stream: "FINISHED:player2_poses"
+  input_stream_info: {
+    tag_index: "FINISHED"
+    back_edge: true
+  }
+  output_stream: "player2_throttled_frames"
 }
 
-# subgraph that detects poses and corresponding landmarks
+# subgraphs that detect poses and corresponding landmarks
 node {
   calculator: "PoseLandmarkCpu"
-  input_stream: "IMAGE:throttled_input_video"
-  output_stream: "LANDMARKS:pose_landmarks"
+  input_stream: "IMAGE:player1_throttled_frames"
+  output_stream: "LANDMARKS:player1_poses"
+}
+node {
+  calculator: "PoseLandmarkCpu"
+  input_stream: "IMAGE:player2_throttled_frames"
+  output_stream: "LANDMARKS:player2_poses"
 }

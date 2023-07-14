@@ -10,7 +10,8 @@ class PoseEstimator {
   public:
   PoseEstimator();
   ~PoseEstimator();
-  Pose getPose(cv::Mat& frame, bool wait = false);
+  Pose getPose1(cv::Mat& frame, bool wait = false);
+  Pose getPose2(cv::Mat& frame, bool wait = false);
   static const vector<string> body_parts;
 };
 
