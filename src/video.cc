@@ -38,13 +38,13 @@ void VideoSaver::save(string name) {
     text_file << endl;
 
     // render pose
-    canvas.render(frame, pose, 255, 0, 255);
+    canvas.render_pose(frame, pose, 255, 0, 255);
     cv::imshow("DanceTime", frame);
     cv::waitKey(1);
 
     // print progress
     curr_frame++;
-    cout << "loading: " << 1e2 * curr_frame / video.get(cv::CAP_PROP_FRAME_COUNT) << "%" << endl;
+    cout << "loading: " << 100.0 * curr_frame / video.get(cv::CAP_PROP_FRAME_COUNT) << "%" << endl;
 
     // read next frame
     video.read(frame);

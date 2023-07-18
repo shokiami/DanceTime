@@ -5,6 +5,11 @@ Game::Game(string name) : capture(0), video(name), audio(name) {
   video.play();
   prev_score_time = std::chrono::steady_clock::now();
   prev_fps_time = std::chrono::steady_clock::now();
+  player1_score = 0;
+  player2_score = 0;
+  player1_total_score = 0;
+  player2_total_score = 0;
+  seconds_passed = 0;
   debug = false;
 }
 
@@ -57,18 +62,12 @@ void Game::update() {
   double elapsed_score_time = 1e-9 * std::chrono::duration_cast<std::chrono::nanoseconds>(curr_time - prev_score_time).count();
   if (elapsed_score_time >= 1) {
     prev_score_time = curr_time;
-    player1_score = scorer.score(player1_history, avatar_history);
-    player2_score = scorer.score(player2_history, avatar_history);
-    // print scores
-    if (!scorer.inframe(player1_pose)) {
-      cout << "player 1: please step into frame" << endl;
-    } else if (scorer.inframe(avatar_pose)) {
-      cout << "player 1: " << 1e-2 * std::round(1e4 * player1_score) << "%" << endl;
-    }
-    if (!scorer.inframe(player2_pose)) {
-      cout << "player 2: please step into frame" << endl;
-    } else if (scorer.inframe(avatar_pose)) {
-      cout << "player 2: " << 1e-2 * std::round(1e4 * player2_score) << "%" << endl;
+    if (scorer.inframe(avatar_pose)) {
+      player1_score = 100.0 * scorer.score(player1_history, avatar_history);
+      player2_score = 100.0 * scorer.score(player2_history, avatar_history);
+      player1_total_score += player1_score;
+      player2_total_score += player2_score;
+      seconds_passed++;
     }
     // clear histories
     player1_history.clear();
@@ -95,14 +94,14 @@ void Game::render() {
 
   // resize player1 frame
   if (debug) {
-    canvas.render(player1_frame, player1_pose, 255, 50, 50);
+    canvas.render_pose(player1_frame, player1_pose, 255, 50, 50);
   }
   player1_frame = player1_frame(cv::Range(0, player1_frame.rows),
     cv::Range(0, player1_frame.cols - video_width / 2));
 
   // resize player2 frame
   if (debug) {
-    canvas.render(player2_frame, player2_pose, 75, 125, 255);
+    canvas.render_pose(player2_frame, player2_pose, 75, 125, 255);
   }
   player2_frame = player2_frame(cv::Range(0, player2_frame.rows),
     cv::Range(video_width / 2, player2_frame.cols));
@@ -113,11 +112,27 @@ void Game::render() {
     for (string body_part : avatar_pose.keys()) {
       avatar_pose[body_part] *= video_scalar;
     }
-    canvas.render(video_frame, avatar_pose, 255, 0, 255);
+    canvas.render_pose(video_frame, avatar_pose, 255, 0, 255);
   }
 
   // resize footer frame
   cv::resize(footer_frame, footer_frame, cv::Size(video_width, player1_frame.rows - video_height));
+
+  // warn players if out of frame
+  double warning_x = player1_frame.cols - 425.0;
+  double warning_y = player1_frame.rows / 2 - 10.0;
+  if (!scorer.inframe(player1_pose)) {
+    canvas.render_text(player1_frame, "please step into frame", warning_x, warning_y, 255, 235, 0);
+  }
+  if (!scorer.inframe(player2_pose)) {
+    canvas.render_text(player2_frame, "please step into frame", warning_x, warning_y, 255, 235, 0);
+  }
+
+  // render scores
+  double player1_progress = 0.01 * player1_total_score / video.totalTime();
+  double player2_progress = 0.01 * player2_total_score / video.totalTime();
+  canvas.render_score(player1_frame, player1_score, player1_progress, 255, 50, 50, false);
+  canvas.render_score(player2_frame, player2_score, player2_progress, 75, 125, 255, true);
 
   // concatenate frames into single frame
   cv::Mat frame;
@@ -126,10 +141,16 @@ void Game::render() {
 
   // render fps
   if (debug) {
-    cv::putText(frame, "fps: " + std::to_string(fps), cv::Point(15, 45), 0, 1.0, CV_RGB(100, 200, 0), 2);
+    canvas.render_text(frame, "fps: " + std::to_string(fps), 15.0, 45.0, 100, 200, 0);
   }
 
   // display frame
   cv::imshow("DanceTime", frame);
   key_code = cv::waitKey(1) & 0xFF;
+}
+
+pair<double, double> Game::results() {
+  double player1_final_score = (double) player1_total_score / seconds_passed;
+  double player2_final_score = (double) player2_total_score / seconds_passed;
+  return {player1_final_score, player2_final_score};
 }

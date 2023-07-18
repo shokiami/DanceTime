@@ -14,6 +14,7 @@ class Game {
   bool finished();
   void update();
   void render();
+  pair<double, double> results();
 
   private:
   cv::VideoCapture capture;
@@ -32,8 +33,11 @@ class Game {
   vector<Pose> player2_history;
   vector<Pose> avatar_history;
   Scorer scorer;
-  double player1_score;
-  double player2_score;
+  int player1_score;
+  int player2_score;
+  int player1_total_score;
+  int player2_total_score;
+  int seconds_passed;
   TimePoint prev_score_time;
   TimePoint prev_fps_time;
   double fps;
