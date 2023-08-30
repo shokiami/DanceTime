@@ -1,6 +1,6 @@
 # DanceTime
 
-Just Dance + FaceTime
+DanceTime = Just Dance + FaceTime.
 
 Compiling:
 ```
