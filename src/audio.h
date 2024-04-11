@@ -3,7 +3,7 @@
 
 #include "defs.h"
 #include "util.h"
-#include "rtaudio/RtAudio.h"
+#include <rtaudio/RtAudio.h>
 extern "C" {
   #include <libavcodec/avcodec.h>
   #include <libavformat/avformat.h>

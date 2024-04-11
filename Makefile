@@ -1,6 +1,6 @@
 CXX := g++
-FLAGS := `pkg-config --cflags opencv4` -std=c++17
-LIBS := `pkg-config --libs opencv4` -Wl,-rpath,./ mediapipe/libmediapipe.so -lrtaudio -lavcodec -lavformat -lavutil
+FLAGS := -std=c++17 `pkg-config --cflags opencv4`
+LIBS := -Wl,-rpath,./ mediapipe/libmediapipe.so -lrtaudio -lavcodec -lavformat -lavutil `pkg-config --libs opencv4`
 ifeq ($(BUILD),RELEASE)
 OPT := -O3
 else
@@ -23,5 +23,5 @@ setup:
 	mkdir obj
 
 clean:
-	rm -f main *.o
+	rm -f main obj/*.o
 	rm -f $(TARGET)
