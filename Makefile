@@ -1,6 +1,6 @@
 CXX := g++
-FLAGS := -std=c++17 `pkg-config --cflags opencv4`
-LIBS := -Wl,-rpath,./ mediapipe/libmediapipe.so -lrtaudio -lavcodec -lavformat -lavutil `pkg-config --libs opencv4`
+FLAGS := `pkg-config --cflags opencv4` -std=c++17
+LIBS := `pkg-config --libs opencv4` -Wl,-rpath,./ mediapipe/libmediapipe.so -lrtaudio -lavcodec -lavformat -lavutil
 ifeq ($(BUILD),RELEASE)
 OPT := -O3
 else
